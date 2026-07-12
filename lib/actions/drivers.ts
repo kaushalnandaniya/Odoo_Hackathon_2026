@@ -158,3 +158,46 @@ export async function rateDriver(driverId: string, scoreAdjustment: number) {
     return { error: "Failed to rate driver." };
   }
 }
+
+export async function completeDriverOnboarding(prevState: unknown, formData: FormData) {
+  const session = await requireRole(["DRIVER"]);
+  try {
+    const rawData = Object.fromEntries(formData.entries());
+    
+    // We don't need 'name' from the form because we take it from the session
+    const validatedData = createDriverSchema.omit({ name: true }).safeParse(rawData);
+
+    if (!validatedData.success) {
+      return { error: "Invalid form data. Please check your inputs." };
+    }
+
+    const existing = await prisma.driver.findUnique({
+      where: { licenseNumber: validatedData.data.licenseNumber },
+    });
+
+    if (existing) {
+      return { error: "A driver with this license number already exists." };
+    }
+
+    // Link the driver record to the logged in user
+    await prisma.driver.create({
+      data: {
+        userId: session.user.id,
+        name: session.user.name ?? "Driver",
+        licenseNumber: validatedData.data.licenseNumber,
+        licenseCategory: validatedData.data.licenseCategory,
+        licenseExpiryDate: new Date(validatedData.data.licenseExpiryDate),
+        contactNumber: validatedData.data.contactNumber,
+        status: DriverStatus.AVAILABLE,
+        safetyScore: 100,
+      },
+    });
+
+    revalidatePath("/drivers");
+    revalidatePath("/trips");
+    return { success: true };
+  } catch (error) {
+    console.error("Error completing onboarding:", error);
+    return { error: "Failed to complete onboarding." };
+  }
+}

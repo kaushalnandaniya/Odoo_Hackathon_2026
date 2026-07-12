@@ -5,7 +5,7 @@ import type { UserRole } from "@prisma/client";
 const ACCESS: Record<UserRole, string[]> = {
   PENDING: [],
   FLEET_MANAGER: ["*"],
-  DRIVER: ["/trips", "/fuel-expenses"],
+  DRIVER: ["/trips", "/fuel-expenses", "/onboarding"],
   SAFETY_OFFICER: ["/dashboard", "/drivers", "/maintenance"],
   FINANCIAL_ANALYST: ["/dashboard", "/reports", "/fuel-expenses", "/maintenance"],
 };
