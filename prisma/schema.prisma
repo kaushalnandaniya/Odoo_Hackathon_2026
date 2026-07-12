@@ -1,0 +1,204 @@
+// TransitOps schema — converted from docs/reference-schema.sql (Postgres original).
+// DATABASE_URL must be the Supabase POOLED string (port 6543, ?pgbouncer=true).
+// DIRECT_URL must be the Supabase DIRECT string (port 5432) — used for migrations.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UserRole {
+  FLEET_MANAGER
+  DRIVER
+  SAFETY_OFFICER
+  FINANCIAL_ANALYST
+}
+
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  IN_SHOP
+  RETIRED
+}
+
+enum DriverStatus {
+  AVAILABLE
+  ON_TRIP
+  OFF_DUTY
+  SUSPENDED
+}
+
+enum TripStatus {
+  DRAFT
+  DISPATCHED
+  COMPLETED
+  CANCELLED
+}
+
+enum MaintStatus {
+  OPEN
+  CLOSED
+}
+
+enum ExpenseType {
+  TOLL
+  PARKING
+  INSURANCE
+  PERMIT
+  OTHER
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  name         String
+  role         UserRole @default(DRIVER)
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  driver       Driver?
+
+  @@map("users")
+}
+
+model Vehicle {
+  id                 String        @id @default(uuid())
+  registrationNumber String        @unique @map("registration_number")
+  name               String
+  type               String
+  maxLoadCapacity    Float         @map("max_load_capacity")
+  odometer           Float         @default(0)
+  acquisitionCost    Float         @map("acquisition_cost")
+  region             String?
+  status             VehicleStatus @default(AVAILABLE)
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  trips           Trip[]
+  maintenanceLogs MaintenanceLog[]
+  fuelLogs        FuelLog[]
+  expenses        Expense[]
+  documents       VehicleDocument[]
+
+  @@index([status])
+  @@map("vehicles")
+}
+
+model VehicleDocument {
+  id          String   @id @default(uuid())
+  vehicleId   String   @map("vehicle_id")
+  fileName    String   @map("file_name")
+  storagePath String   @map("storage_path")
+  uploadedAt  DateTime @default(now()) @map("uploaded_at")
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@index([vehicleId])
+  @@map("vehicle_documents")
+}
+
+model Driver {
+  id                String       @id @default(uuid())
+  userId            String?      @unique @map("user_id")
+  name              String
+  licenseNumber     String       @unique @map("license_number")
+  licenseCategory   String       @map("license_category")
+  licenseExpiryDate DateTime     @map("license_expiry_date")
+  contactNumber     String       @map("contact_number")
+  safetyScore       Float        @default(0) @map("safety_score")
+  status            DriverStatus @default(AVAILABLE)
+  createdAt         DateTime     @default(now()) @map("created_at")
+  updatedAt         DateTime     @updatedAt @map("updated_at")
+
+  user  User?  @relation(fields: [userId], references: [id], onDelete: SetNull)
+  trips Trip[]
+
+  @@index([status])
+  @@index([licenseExpiryDate])
+  @@map("drivers")
+}
+
+model Trip {
+  id              String     @id @default(uuid())
+  tripCode        String     @unique @map("trip_code")
+  source          String
+  destination     String
+  vehicleId       String     @map("vehicle_id")
+  driverId        String     @map("driver_id")
+  cargoWeight     Float      @map("cargo_weight")
+  plannedDistance Float      @map("planned_distance")
+  actualDistance  Float?     @map("actual_distance")
+  status          TripStatus @default(DRAFT)
+  startOdometer   Float?     @map("start_odometer")
+  endOdometer     Float?     @map("end_odometer")
+  fuelConsumed    Float?     @map("fuel_consumed")
+  revenue         Float      @default(0)
+  dispatchedAt    DateTime?  @map("dispatched_at")
+  completedAt     DateTime?  @map("completed_at")
+  createdAt       DateTime   @default(now()) @map("created_at")
+  updatedAt       DateTime   @updatedAt @map("updated_at")
+
+  vehicle  Vehicle   @relation(fields: [vehicleId], references: [id])
+  driver   Driver    @relation(fields: [driverId], references: [id])
+  fuelLogs FuelLog[]
+
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([status])
+  @@index([createdAt])
+  @@map("trips")
+}
+
+model MaintenanceLog {
+  id            String      @id @default(uuid())
+  vehicleId     String      @map("vehicle_id")
+  description   String?
+  serviceType   String      @map("service_type")
+  cost          Float
+  status        MaintStatus @default(OPEN)
+  scheduledDate DateTime?   @map("scheduled_date")
+  completedDate DateTime?   @map("completed_date")
+  createdAt     DateTime    @default(now()) @map("created_at")
+  updatedAt     DateTime    @updatedAt @map("updated_at")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@index([vehicleId])
+  @@map("maintenance_logs")
+}
+
+model FuelLog {
+  id           String   @id @default(uuid())
+  vehicleId    String   @map("vehicle_id")
+  tripId       String?  @map("trip_id")
+  liters       Float
+  costPerLiter Float    @map("cost_per_liter")
+  totalCost    Float    @map("total_cost")
+  loggedAt     DateTime @map("logged_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+  trip    Trip?   @relation(fields: [tripId], references: [id], onDelete: SetNull)
+
+  @@index([vehicleId])
+  @@map("fuel_logs")
+}
+
+model Expense {
+  id          String      @id @default(uuid())
+  vehicleId   String      @map("vehicle_id")
+  type        ExpenseType
+  amount      Float
+  description String?
+  expenseDate DateTime    @map("expense_date")
+  createdAt   DateTime    @default(now()) @map("created_at")
+
+  vehicle Vehicle @relation(fields: [vehicleId], references: [id])
+
+  @@index([vehicleId])
+  @@map("expenses")
+}
