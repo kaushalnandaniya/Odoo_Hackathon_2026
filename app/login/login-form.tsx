@@ -7,7 +7,7 @@ export function LoginForm() {
   const [error, formAction, pending] = useActionState(login, undefined);
 
   return (
-    <form action={formAction} className="space-y-6 mt-4">
+    <form action={formAction} className="space-y-6 mt-4" suppressHydrationWarning>
       {error && (
         <div className="bg-red-100 text-[#ef4444] p-4 rounded-xl text-[0.95rem] font-bold border border-[#ef4444]/30 shadow-sm">
           {error}

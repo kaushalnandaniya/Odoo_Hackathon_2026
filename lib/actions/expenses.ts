@@ -1,5 +1,6 @@
 "use server";
 
+import { requireRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -23,6 +24,7 @@ const expenseSchema = z.object({
 });
 
 export async function createFuelLog(prevState: unknown, formData: FormData) {
+  await requireRole(["FLEET_MANAGER", "FINANCIAL_ANALYST"]);
   try {
     const rawData = Object.fromEntries(formData.entries());
     const validatedData = fuelLogSchema.safeParse(rawData);
@@ -53,6 +55,7 @@ export async function createFuelLog(prevState: unknown, formData: FormData) {
 }
 
 export async function createExpense(prevState: unknown, formData: FormData) {
+  await requireRole(["FLEET_MANAGER", "FINANCIAL_ANALYST"]);
   try {
     const rawData = Object.fromEntries(formData.entries());
     // Type casting string to enum is handled by nativeEnum
