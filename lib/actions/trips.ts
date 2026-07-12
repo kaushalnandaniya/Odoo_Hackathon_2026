@@ -6,7 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireRole } from "@/lib/authz";
 
 // Trips can be managed by Fleet Managers and (per the brief) Drivers.
-const TRIP_ROLES: ("FLEET_MANAGER" | "DRIVER")[] = ["FLEET_MANAGER", "DRIVER"];
+const TRIP_ROLES: ("FLEET_MANAGER")[] = ["FLEET_MANAGER"];
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
