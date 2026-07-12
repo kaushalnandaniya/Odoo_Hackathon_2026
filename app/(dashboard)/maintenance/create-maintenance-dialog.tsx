@@ -58,16 +58,16 @@ export function CreateMaintenanceDialog({ vehicles }: { vehicles: Vehicle[] }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="serviceType">Service Type</Label>
-            <Input id="serviceType" name="serviceType" placeholder="e.g. Oil Change, Repair" required />
+            <Input id="serviceType" name="serviceType" placeholder="e.g. Oil Change, Repair" maxLength={100} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Input id="description" name="description" placeholder="Optional details..." />
+            <Input id="description" name="description" placeholder="Optional details..." maxLength={1000} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="cost">Estimated Cost ($)</Label>
-              <Input id="cost" name="cost" type="number" min="0" required />
+              <Input id="cost" name="cost" type="number" min="0" max="10000000" step="any" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="scheduledDate">Date</Label>

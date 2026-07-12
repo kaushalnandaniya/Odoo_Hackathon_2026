@@ -73,12 +73,12 @@ export function LogExpenseDialog({ vehicles }: { vehicles: Vehicle[] }) {
           </div>
           <div className="space-y-2">
             <Label htmlFor="description">Description</Label>
-            <Input id="description" name="description" placeholder="Optional details..." />
+            <Input id="description" name="description" placeholder="Optional details..." maxLength={1000} />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="amount">Amount ($)</Label>
-              <Input id="amount" name="amount" type="number" step="0.01" min="0" required />
+              <Input id="amount" name="amount" type="number" step="0.01" min="0" max="10000000" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>

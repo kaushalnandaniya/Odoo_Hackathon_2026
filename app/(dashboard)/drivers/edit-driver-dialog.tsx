@@ -38,12 +38,12 @@ export function EditDriverDialog({ driver }: { driver: Driver }) {
           )}
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
-            <Input id="name" name="name" defaultValue={driver.name} required />
+            <Input id="name" name="name" defaultValue={driver.name} maxLength={100} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="licenseCategory">Category</Label>
-              <Input id="licenseCategory" name="licenseCategory" defaultValue={driver.licenseCategory} required />
+              <Input id="licenseCategory" name="licenseCategory" defaultValue={driver.licenseCategory} maxLength={20} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="licenseExpiryDate">License Expiry</Label>
@@ -53,7 +53,7 @@ export function EditDriverDialog({ driver }: { driver: Driver }) {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="contactNumber">Contact Phone</Label>
-              <Input id="contactNumber" name="contactNumber" defaultValue={driver.contactNumber} required />
+              <Input id="contactNumber" name="contactNumber" defaultValue={driver.contactNumber} pattern="^\+?[0-9]{7,15}$" title="Phone number (7-15 digits), optionally starting with +" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="safetyScore">Safety Score (0-100)</Label>

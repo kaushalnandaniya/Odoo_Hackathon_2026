@@ -7,23 +7,23 @@ import { VehicleStatus } from "@prisma/client";
 import { requireRole } from "@/lib/authz";
 
 const createVehicleSchema = z.object({
-  registrationNumber: z.string().min(1, "Registration number is required"),
-  name: z.string().min(1, "Vehicle name/model is required"),
-  type: z.string().min(1, "Type is required"),
-  maxLoadCapacity: z.coerce.number().min(0, "Capacity must be positive"),
-  odometer: z.coerce.number().min(0, "Odometer must be positive"),
-  acquisitionCost: z.coerce.number().min(0, "Cost must be positive"),
-  region: z.string().optional(),
+  registrationNumber: z.string().trim().min(1, "Registration number is required").max(50, "Registration number is too long"),
+  name: z.string().trim().min(1, "Vehicle name/model is required").max(100, "Name is too long"),
+  type: z.string().trim().min(1, "Type is required").max(50, "Type is too long"),
+  maxLoadCapacity: z.coerce.number().min(0, "Capacity must be positive").max(200000, "Capacity is unreasonably high"),
+  odometer: z.coerce.number().min(0, "Odometer must be positive").max(2000000, "Odometer is unreasonably high"),
+  acquisitionCost: z.coerce.number().min(0, "Cost must be positive").max(100000000, "Cost is unreasonably high"),
+  region: z.string().trim().max(100, "Region is too long").optional(),
 });
 
 const updateVehicleSchema = z.object({
   id: z.string().min(1),
-  name: z.string().min(1, "Vehicle name/model is required"),
-  type: z.string().min(1, "Type is required"),
-  maxLoadCapacity: z.coerce.number().min(0, "Capacity must be positive"),
-  odometer: z.coerce.number().min(0, "Odometer must be positive"),
-  acquisitionCost: z.coerce.number().min(0, "Cost must be positive"),
-  region: z.string().optional(),
+  name: z.string().trim().min(1, "Vehicle name/model is required").max(100, "Name is too long"),
+  type: z.string().trim().min(1, "Type is required").max(50, "Type is too long"),
+  maxLoadCapacity: z.coerce.number().min(0, "Capacity must be positive").max(200000, "Capacity is unreasonably high"),
+  odometer: z.coerce.number().min(0, "Odometer must be positive").max(2000000, "Odometer is unreasonably high"),
+  acquisitionCost: z.coerce.number().min(0, "Cost must be positive").max(100000000, "Cost is unreasonably high"),
+  region: z.string().trim().max(100, "Region is too long").optional(),
   status: z.nativeEnum(VehicleStatus).optional(),
 });
 

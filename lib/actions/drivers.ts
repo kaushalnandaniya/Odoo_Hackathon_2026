@@ -6,21 +6,23 @@ import { z } from "zod";
 import { DriverStatus } from "@prisma/client";
 import { requireRole } from "@/lib/authz";
 
+const phoneRegex = /^\+?[0-9]{7,15}$/;
+
 const createDriverSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  licenseNumber: z.string().min(1, "License number is required"),
-  licenseCategory: z.string().min(1, "License category is required"),
+  name: z.string().trim().min(1, "Name is required").max(100, "Name is too long"),
+  licenseNumber: z.string().trim().min(1, "License number is required").max(50, "License number is too long"),
+  licenseCategory: z.string().trim().min(1, "License category is required").max(20, "Category is too long"),
   licenseExpiryDate: z.string().min(1, "Expiry date is required"),
-  contactNumber: z.string().min(1, "Contact number is required"),
+  contactNumber: z.string().trim().regex(phoneRegex, "Invalid contact number format (7-15 digits)"),
 });
 
 const updateDriverSchema = z.object({
   id: z.string().min(1),
-  name: z.string().min(1, "Name is required"),
-  licenseCategory: z.string().min(1, "License category is required"),
+  name: z.string().trim().min(1, "Name is required").max(100, "Name is too long"),
+  licenseCategory: z.string().trim().min(1, "License category is required").max(20, "Category is too long"),
   licenseExpiryDate: z.string().min(1, "Expiry date is required"),
-  contactNumber: z.string().min(1, "Contact number is required"),
-  safetyScore: z.coerce.number().min(0).max(100).optional(),
+  contactNumber: z.string().trim().regex(phoneRegex, "Invalid contact number format (7-15 digits)"),
+  safetyScore: z.coerce.number().min(0, "Score cannot be negative").max(100, "Score cannot exceed 100").optional(),
 });
 
 export async function createDriver(prevState: unknown, formData: FormData) {

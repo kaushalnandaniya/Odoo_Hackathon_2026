@@ -61,7 +61,7 @@ export function PendingUsers({ users }: { users: PendingUser[] }) {
           </span>
         )}
       </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-[90vw] sm:max-w-[90vw] w-full max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-destructive">Pending Approvals</DialogTitle>
           <DialogDescription>

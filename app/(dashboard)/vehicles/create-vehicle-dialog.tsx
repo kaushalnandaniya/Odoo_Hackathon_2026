@@ -43,35 +43,35 @@ export function CreateVehicleDialog() {
           )}
           <div className="space-y-2">
             <Label htmlFor="registrationNumber">Registration Number</Label>
-            <Input id="registrationNumber" name="registrationNumber" placeholder="e.g. VAN-05" required />
+            <Input id="registrationNumber" name="registrationNumber" placeholder="e.g. VAN-05" maxLength={50} required />
           </div>
           <div className="space-y-2">
             <Label htmlFor="name">Name / Model</Label>
-            <Input id="name" name="name" placeholder="e.g. Ford Transit" required />
+            <Input id="name" name="name" placeholder="e.g. Ford Transit" maxLength={100} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
-              <Input id="type" name="type" placeholder="e.g. Van" required />
+              <Input id="type" name="type" placeholder="e.g. Van" maxLength={50} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="maxLoadCapacity">Max Load (kg)</Label>
-              <Input id="maxLoadCapacity" name="maxLoadCapacity" type="number" min="0" required />
+              <Input id="maxLoadCapacity" name="maxLoadCapacity" type="number" min="0" max="200000" step="any" required />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="odometer">Odometer (km)</Label>
-              <Input id="odometer" name="odometer" type="number" min="0" defaultValue="0" required />
+              <Input id="odometer" name="odometer" type="number" min="0" max="2000000" step="any" defaultValue="0" required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="acquisitionCost">Cost ($)</Label>
-              <Input id="acquisitionCost" name="acquisitionCost" type="number" min="0" required />
+              <Input id="acquisitionCost" name="acquisitionCost" type="number" min="0" max="100000000" step="any" required />
             </div>
           </div>
           <div className="space-y-2">
             <Label htmlFor="region">Region</Label>
-            <Input id="region" name="region" placeholder="e.g. North Area" />
+            <Input id="region" name="region" placeholder="e.g. North Area" maxLength={100} />
           </div>
           <div className="flex justify-end space-x-2 pt-4">
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>

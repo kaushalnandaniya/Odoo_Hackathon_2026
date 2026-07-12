@@ -43,16 +43,16 @@ export function CreateDriverDialog() {
           )}
           <div className="space-y-2">
             <Label htmlFor="name">Full Name</Label>
-            <Input id="name" name="name" placeholder="e.g. John Doe" required />
+            <Input id="name" name="name" placeholder="e.g. John Doe" maxLength={100} required />
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="licenseNumber">License Number</Label>
-              <Input id="licenseNumber" name="licenseNumber" placeholder="e.g. DL-12345" required />
+              <Input id="licenseNumber" name="licenseNumber" placeholder="e.g. DL-12345" maxLength={50} required />
             </div>
             <div className="space-y-2">
               <Label htmlFor="licenseCategory">Category</Label>
-              <Input id="licenseCategory" name="licenseCategory" placeholder="e.g. Heavy Commercial" required />
+              <Input id="licenseCategory" name="licenseCategory" placeholder="e.g. Heavy Commercial" maxLength={20} required />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -62,7 +62,7 @@ export function CreateDriverDialog() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="contactNumber">Contact Phone</Label>
-              <Input id="contactNumber" name="contactNumber" placeholder="+123456789" required />
+              <Input id="contactNumber" name="contactNumber" placeholder="+123456789" pattern="^\+?[0-9]{7,15}$" title="Phone number (7-15 digits), optionally starting with +" required />
             </div>
           </div>
           <div className="flex justify-end space-x-2 pt-4">

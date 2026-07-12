@@ -59,6 +59,8 @@ export function RateDriverDialog({ driver, open, onOpenChange }: RateDriverDialo
             <Input
               id="adjustment"
               type="number"
+              min="-100"
+              max="100"
               value={scoreAdjustment}
               onChange={(e) => setScoreAdjustment(parseInt(e.target.value) || 0)}
               required

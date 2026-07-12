@@ -8,8 +8,8 @@ import { ExpenseType } from "@prisma/client";
 
 const fuelLogSchema = z.object({
   vehicleId: z.string().min(1, "Vehicle is required"),
-  liters: z.coerce.number().min(0.1, "Liters must be > 0"),
-  cost: z.coerce.number().min(0, "Total cost must be >= 0"),
+  liters: z.coerce.number().min(0.1, "Liters must be > 0").max(5000, "Liters unreasonably high"),
+  cost: z.coerce.number().min(0, "Total cost must be >= 0").max(1000000, "Cost is unreasonably high"),
   date: z.string().min(1, "Date is required"),
 });
 
@@ -18,8 +18,8 @@ const expenseSchema = z.object({
   type: z.nativeEnum(ExpenseType, {
     error: "Invalid expense type"
   }),
-  amount: z.coerce.number().min(0, "Amount must be >= 0"),
-  description: z.string().optional(),
+  amount: z.coerce.number().min(0, "Amount must be >= 0").max(10000000, "Amount is unreasonably high"),
+  description: z.string().trim().max(1000, "Description is too long").optional(),
   date: z.string().min(1, "Date is required"),
 });
 

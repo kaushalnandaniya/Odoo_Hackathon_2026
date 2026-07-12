@@ -21,20 +21,20 @@ function refresh() {
 }
 
 const createTripSchema = z.object({
-  source: z.string().trim().min(1, "Source is required"),
-  destination: z.string().trim().min(1, "Destination is required"),
+  source: z.string().trim().min(1, "Source is required").max(100, "Source is too long"),
+  destination: z.string().trim().min(1, "Destination is required").max(100, "Destination is too long"),
   vehicleId: z.string().uuid("Select a vehicle"),
   driverId: z.string().uuid("Select a driver"),
-  cargoWeight: z.coerce.number().positive("Cargo weight must be > 0"),
-  plannedDistance: z.coerce.number().positive("Planned distance must be > 0"),
-  revenue: z.coerce.number().min(0).optional().default(0),
+  cargoWeight: z.coerce.number().positive("Cargo weight must be > 0").max(100000, "Weight is unreasonably high"),
+  plannedDistance: z.coerce.number().positive("Planned distance must be > 0").max(50000, "Distance is unreasonably high"),
+  revenue: z.coerce.number().min(0, "Revenue cannot be negative").max(10000000, "Revenue is unreasonably high").optional().default(0),
 });
 
 const completeTripSchema = z.object({
   tripId: z.string().uuid(),
-  endOdometer: z.coerce.number().min(0),
-  fuelConsumed: z.coerce.number().min(0).optional(),
-  revenue: z.coerce.number().min(0).optional(),
+  endOdometer: z.coerce.number().min(0, "Odometer cannot be negative").max(2000000, "Odometer is unreasonably high"),
+  fuelConsumed: z.coerce.number().min(0, "Fuel consumed cannot be negative").max(10000, "Fuel amount is unreasonably high").optional(),
+  revenue: z.coerce.number().min(0, "Revenue cannot be negative").max(10000000, "Revenue is unreasonably high").optional(),
 });
 
 function newTripCode() {

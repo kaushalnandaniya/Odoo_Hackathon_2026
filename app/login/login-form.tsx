@@ -54,6 +54,7 @@ export function LoginForm() {
             type="email"
             placeholder="manager@transitops.in"
             autoComplete="email"
+            maxLength={255}
             required
             className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm text-foreground placeholder:text-muted-foreground font-medium focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm"
           />

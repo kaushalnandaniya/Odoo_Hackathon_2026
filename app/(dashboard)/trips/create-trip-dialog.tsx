@@ -83,11 +83,11 @@ export function CreateTripDialog({
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label htmlFor="source">Source</Label>
-              <Input id="source" name="source" placeholder="Mumbai" required />
+              <Input id="source" name="source" placeholder="Mumbai" maxLength={100} required />
             </div>
             <div className="space-y-1">
               <Label htmlFor="destination">Destination</Label>
-              <Input id="destination" name="destination" placeholder="Pune" required />
+              <Input id="destination" name="destination" placeholder="Pune" maxLength={100} required />
             </div>
           </div>
 
@@ -142,6 +142,7 @@ export function CreateTripDialog({
                 type="number"
                 step="any"
                 min="0.01"
+                max="100000"
                 value={cargo}
                 onChange={(e) => setCargo(e.target.value)}
                 required
@@ -155,12 +156,13 @@ export function CreateTripDialog({
                 type="number"
                 step="any"
                 min="0.01"
+                max="50000"
                 required
               />
             </div>
             <div className="space-y-1">
               <Label htmlFor="revenue">Revenue (₹)</Label>
-              <Input id="revenue" name="revenue" type="number" step="any" min="0" />
+              <Input id="revenue" name="revenue" type="number" step="any" min="0" max="10000000" />
             </div>
           </div>
 

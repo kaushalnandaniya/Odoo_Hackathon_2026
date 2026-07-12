@@ -8,9 +8,9 @@ import { VehicleStatus, MaintStatus } from "@prisma/client";
 
 const createLogSchema = z.object({
   vehicleId: z.string().min(1, "Vehicle is required"),
-  serviceType: z.string().min(1, "Service type is required"),
-  description: z.string().optional(),
-  cost: z.coerce.number().min(0, "Cost must be positive"),
+  serviceType: z.string().trim().min(1, "Service type is required").max(100, "Service type is too long"),
+  description: z.string().trim().max(1000, "Description is too long").optional(),
+  cost: z.coerce.number().min(0, "Cost must be positive").max(10000000, "Cost is unreasonably high"),
   scheduledDate: z.string().min(1, "Scheduled date is required"),
 });
 

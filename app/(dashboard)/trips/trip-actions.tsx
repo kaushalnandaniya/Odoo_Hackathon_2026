@@ -104,16 +104,17 @@ export function TripActions({
                 type="number"
                 step="any"
                 min={startOdometer ?? 0}
+                max={2000000}
                 required
               />
             </div>
             <div className="space-y-1">
               <Label htmlFor="fuelConsumed">Fuel consumed (L)</Label>
-              <Input id="fuelConsumed" name="fuelConsumed" type="number" step="any" min="0" />
+              <Input id="fuelConsumed" name="fuelConsumed" type="number" step="any" min="0" max="10000" />
             </div>
             <div className="space-y-1">
               <Label htmlFor="revenue">Revenue (₹)</Label>
-              <Input id="revenue" name="revenue" type="number" step="any" min="0" />
+              <Input id="revenue" name="revenue" type="number" step="any" min="0" max="10000000" />
             </div>
             <Button type="submit" className="w-full" disabled={pending}>
               {pending ? "Completing..." : "Complete Trip"}
