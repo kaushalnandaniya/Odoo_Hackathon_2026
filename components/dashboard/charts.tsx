@@ -37,7 +37,7 @@ export function DashboardCharts({ costData }: ChartsProps) {
             <BarChart data={costData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
               <XAxis dataKey="name" fontSize={12} tickLine={false} axisLine={false} />
               <YAxis fontSize={12} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
-              <Tooltip content={<CustomTooltip />} cursor={{ fill: "hsl(var(--muted))" }} />
+              <Tooltip content={<CustomTooltip />} cursor={false} />
               <Bar dataKey="maintenance" name="Maintenance" stackId="a" fill="#ef4444" radius={[0, 0, 4, 4]} />
               <Bar dataKey="fuel" name="Fuel" stackId="a" fill="#f59e0b" radius={[4, 4, 0, 0]} />
             </BarChart>
