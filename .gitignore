@@ -1,0 +1,5 @@
+# Root .gitignore
+ROADMAP.md
+*.pdf
+node_modules/
+.DS_Store
