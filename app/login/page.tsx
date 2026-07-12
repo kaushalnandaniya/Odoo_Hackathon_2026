@@ -23,7 +23,7 @@ export default function LoginPage() {
           <LoginForm />
           
           <div className="mt-8 text-center text-[0.95rem] text-slate-500 font-medium">
-            Don't have an account?{" "}
+            {"Don't have an account? "}
             <Link href="/signup" className="font-bold text-[#ef4444] hover:underline">
               Sign up for free!
             </Link>
