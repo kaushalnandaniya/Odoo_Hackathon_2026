@@ -165,7 +165,6 @@ export function SignupForm() {
             </motion.button>
           </motion.form>
         )}
-        )}
 
         {step === 2 && (
           <motion.form 
