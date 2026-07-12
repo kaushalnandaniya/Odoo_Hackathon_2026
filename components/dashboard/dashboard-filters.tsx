@@ -32,9 +32,9 @@ export function DashboardFilters({ types, regions }: { types: string[], regions:
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all" label="All">All</SelectItem>
               {types.map(t => (
-                <SelectItem key={t} value={t}>{t}</SelectItem>
+                <SelectItem key={t} value={t} label={t}>{t}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -49,11 +49,11 @@ export function DashboardFilters({ types, regions }: { types: string[], regions:
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="AVAILABLE">Available</SelectItem>
-              <SelectItem value="ON_TRIP">On Trip</SelectItem>
-              <SelectItem value="IN_SHOP">In Shop</SelectItem>
-              <SelectItem value="RETIRED">Retired</SelectItem>
+              <SelectItem value="all" label="All">All</SelectItem>
+              <SelectItem value="AVAILABLE" label="Available">Available</SelectItem>
+              <SelectItem value="ON_TRIP" label="On Trip">On Trip</SelectItem>
+              <SelectItem value="IN_SHOP" label="In Shop">In Shop</SelectItem>
+              <SelectItem value="RETIRED" label="Retired">Retired</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -67,9 +67,9 @@ export function DashboardFilters({ types, regions }: { types: string[], regions:
               <SelectValue placeholder="All" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all" label="All">All</SelectItem>
               {regions.map(r => (
-                <SelectItem key={r} value={r}>{r}</SelectItem>
+                <SelectItem key={r} value={r} label={r}>{r}</SelectItem>
               ))}
             </SelectContent>
           </Select>

@@ -111,8 +111,9 @@ function SelectLabel({
 function SelectItem({
   className,
   children,
+  label,
   ...props
-}: SelectPrimitive.Item.Props) {
+}: SelectPrimitive.Item.Props & { label?: string }) {
   return (
     <SelectPrimitive.Item
       data-slot="select-item"
@@ -122,9 +123,14 @@ function SelectItem({
       )}
       {...props}
     >
-      <SelectPrimitive.ItemText className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
-        {children}
+      {/* ItemText controls what SelectValue shows in the trigger */}
+      <SelectPrimitive.ItemText className="sr-only">
+        {label ?? (typeof children === "string" ? children : null)}
       </SelectPrimitive.ItemText>
+      {/* Visible content inside the dropdown list */}
+      <span className="flex flex-1 shrink-0 gap-2 whitespace-nowrap">
+        {children}
+      </span>
       <SelectPrimitive.ItemIndicator
         render={
           <span className="pointer-events-none absolute right-2 flex size-4 items-center justify-center" />

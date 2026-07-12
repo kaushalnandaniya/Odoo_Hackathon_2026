@@ -100,10 +100,10 @@ export function PendingUsers({ users }: { users: PendingUser[] }) {
                           <SelectValue placeholder="Select a role..." />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="DRIVER">Driver</SelectItem>
-                          <SelectItem value="SAFETY_OFFICER">Safety Officer</SelectItem>
-                          <SelectItem value="FINANCIAL_ANALYST">Financial Analyst</SelectItem>
-                          <SelectItem value="FLEET_MANAGER">Fleet Manager</SelectItem>
+                          <SelectItem value="DRIVER" label="Driver">Driver</SelectItem>
+                          <SelectItem value="SAFETY_OFFICER" label="Safety Officer">Safety Officer</SelectItem>
+                          <SelectItem value="FINANCIAL_ANALYST" label="Financial Analyst">Financial Analyst</SelectItem>
+                          <SelectItem value="FLEET_MANAGER" label="Fleet Manager">Fleet Manager</SelectItem>
                         </SelectContent>
                       </Select>
                     </TableCell>

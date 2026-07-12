@@ -31,7 +31,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
     }
   };
 
-  // Execute all Prisma queries in parallel
+  // Execute all KPI queries in parallel
   const [
     distinctTypesRaw,
     distinctRegionsRaw,
@@ -41,6 +41,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
     retiredVehicles,
     activeTrips,
     pendingTrips,
+    completedTripsCount,
     availableDrivers,
     onTripDrivers,
   ] = await Promise.all([
@@ -52,6 +53,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
     statusFilter && statusFilter !== 'RETIRED' ? 0 : prisma.vehicle.count({ where: { ...vehicleFilter, status: VehicleStatus.RETIRED } }),
     prisma.trip.count({ where: { ...tripWhere, status: TripStatus.DISPATCHED } }),
     prisma.trip.count({ where: { ...tripWhere, status: TripStatus.DRAFT } }),
+    prisma.trip.count({ where: { ...tripWhere, status: TripStatus.COMPLETED } }),
     prisma.driver.count({ where: { status: DriverStatus.AVAILABLE } }),
     prisma.driver.count({ where: { status: DriverStatus.ON_TRIP } }),
   ]);
@@ -60,8 +62,8 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
   const distinctRegions = distinctRegionsRaw.map(r => r.region).filter(Boolean) as string[];
 
   const totalNonRetired = activeVehicles + availableVehicles + inMaintenance;
-  const fleetUtilization = totalNonRetired > 0 
-    ? ((activeVehicles / totalNonRetired) * 100).toFixed(1) 
+  const fleetUtilization = totalNonRetired > 0
+    ? ((activeVehicles / totalNonRetired) * 100).toFixed(1)
     : "0.0";
 
   const metrics = {
@@ -74,15 +76,14 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
     fleetUtilization,
   };
 
-  // Data for Vehicle Status Component
   const vehicleStatusData = {
     available: availableVehicles,
     onTrip: activeVehicles,
     inShop: inMaintenance,
-    retired: retiredVehicles
+    retired: retiredVehicles,
   };
 
-  // Fetch all vehicles with their related maintenance and fuel logs for the Cost Bar Chart
+  // ── Chart 1: Top Costs per Vehicle (fuel + maintenance + other expenses) ──
   const vehiclesWithCosts = await prisma.vehicle.findMany({
     where: {
       ...vehicleFilter,
@@ -90,34 +91,51 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
     },
     select: {
       registrationNumber: true,
-      maintenanceLogs: {
-        select: { cost: true }
-      },
-      fuelLogs: {
-        select: { totalCost: true }
-      }
+      maintenanceLogs: { select: { cost: true } },
+      fuelLogs: { select: { totalCost: true } },
+      expenses: { select: { amount: true } },
     }
   });
 
-  // Calculate costs and sort to find top 5 most expensive vehicles
   const costData = vehiclesWithCosts.map(v => {
     const maintenanceCost = v.maintenanceLogs.reduce((sum, log) => sum + (log.cost || 0), 0);
     const fuelCost = v.fuelLogs.reduce((sum, log) => sum + (log.totalCost || 0), 0);
+    const otherExpenses = v.expenses.reduce((sum, e) => sum + (e.amount || 0), 0);
     return {
       name: v.registrationNumber,
-      maintenance: maintenanceCost,
-      fuel: fuelCost,
-      total: maintenanceCost + fuelCost
+      maintenance: Math.round(maintenanceCost),
+      fuel: Math.round(fuelCost),
+      expenses: Math.round(otherExpenses),
+      total: maintenanceCost + fuelCost + otherExpenses,
     };
   })
   .sort((a, b) => b.total - a.total)
-  .slice(0, 5); // Take top 5
+  .slice(0, 5);
 
-  // Monthly cost trend (last 6 months)
+  // ── Chart 2: Monthly Revenue vs Total Expenses (last 6 months) ──
   const sixMonthsAgo = new Date();
-  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 5);
+  sixMonthsAgo.setDate(1);
+  sixMonthsAgo.setHours(0, 0, 0, 0);
 
-  const [monthlyFuel, monthlyMaint] = await Promise.all([
+  const [completedTripsRaw, fuelLogsRaw, expensesRaw, maintenanceRaw, monthlyFuel, monthlyMaint] = await Promise.all([
+    prisma.trip.findMany({
+      where: { status: TripStatus.COMPLETED, completedAt: { gte: sixMonthsAgo } },
+      select: { revenue: true, completedAt: true },
+    }),
+    prisma.fuelLog.findMany({
+      where: { loggedAt: { gte: sixMonthsAgo } },
+      select: { totalCost: true, loggedAt: true },
+    }),
+    prisma.expense.findMany({
+      where: { expenseDate: { gte: sixMonthsAgo } },
+      select: { amount: true, expenseDate: true },
+    }),
+    prisma.maintenanceLog.findMany({
+      where: { createdAt: { gte: sixMonthsAgo } },
+      select: { cost: true, createdAt: true },
+    }),
+    // For FleetCharts monthly cost trend
     prisma.fuelLog.findMany({
       where: { loggedAt: { gte: sixMonthsAgo } },
       select: { totalCost: true, loggedAt: true },
@@ -130,31 +148,72 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
     }),
   ]);
 
-  const monthlyMap: Record<string, { fuel: number; maintenance: number }> = {};
+  // Build month buckets for last 6 months
+  const monthLabels: string[] = [];
+  const monthKeys: string[] = [];
   for (let i = 5; i >= 0; i--) {
     const d = new Date();
     d.setMonth(d.getMonth() - i);
-    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    monthlyMap[key] = { fuel: 0, maintenance: 0 };
+    monthLabels.push(d.toLocaleString('default', { month: 'short', year: '2-digit' }));
+    monthKeys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`);
   }
-  monthlyFuel.forEach((f) => {
-    const key = `${f.loggedAt.getFullYear()}-${String(f.loggedAt.getMonth() + 1).padStart(2, "0")}`;
+
+  const revenueByMonth: Record<string, number> = {};
+  const expenseByMonth: Record<string, number> = {};
+  monthKeys.forEach(k => { revenueByMonth[k] = 0; expenseByMonth[k] = 0; });
+
+  completedTripsRaw.forEach(t => {
+    if (!t.completedAt) return;
+    const key = `${t.completedAt.getFullYear()}-${String(t.completedAt.getMonth() + 1).padStart(2, '0')}`;
+    if (key in revenueByMonth) revenueByMonth[key] += t.revenue || 0;
+  });
+  fuelLogsRaw.forEach(f => {
+    const key = `${f.loggedAt.getFullYear()}-${String(f.loggedAt.getMonth() + 1).padStart(2, '0')}`;
+    if (key in expenseByMonth) expenseByMonth[key] += f.totalCost || 0;
+  });
+  expensesRaw.forEach(e => {
+    const key = `${e.expenseDate.getFullYear()}-${String(e.expenseDate.getMonth() + 1).padStart(2, '0')}`;
+    if (key in expenseByMonth) expenseByMonth[key] += e.amount || 0;
+  });
+  maintenanceRaw.forEach(m => {
+    const key = `${m.createdAt.getFullYear()}-${String(m.createdAt.getMonth() + 1).padStart(2, '0')}`;
+    if (key in expenseByMonth) expenseByMonth[key] += m.cost || 0;
+  });
+
+  const trendData = monthKeys.map((key, i) => ({
+    month: monthLabels[i],
+    revenue: Math.round(revenueByMonth[key]),
+    expenses: Math.round(expenseByMonth[key]),
+  }));
+
+  // ── Chart 3: Trip Status Distribution ──
+  const tripStatusData = [
+    { name: 'Draft', value: pendingTrips, color: '#6366f1' },
+    { name: 'Active', value: activeTrips, color: '#f59e0b' },
+    { name: 'Completed', value: completedTripsCount, color: '#10b981' },
+  ].filter(d => d.value > 0);
+
+  // ── FleetCharts: Monthly cost trend (fuel + maintenance only) ──
+  const monthlyMap: Record<string, { fuel: number; maintenance: number }> = {};
+  monthKeys.forEach(k => { monthlyMap[k] = { fuel: 0, maintenance: 0 }; });
+  monthlyFuel.forEach(f => {
+    const key = `${f.loggedAt.getFullYear()}-${String(f.loggedAt.getMonth() + 1).padStart(2, '0')}`;
     if (monthlyMap[key]) monthlyMap[key].fuel += f.totalCost;
   });
-  monthlyMaint.forEach((m) => {
+  monthlyMaint.forEach(m => {
     if (m.completedDate) {
-      const key = `${m.completedDate.getFullYear()}-${String(m.completedDate.getMonth() + 1).padStart(2, "0")}`;
+      const key = `${m.completedDate.getFullYear()}-${String(m.completedDate.getMonth() + 1).padStart(2, '0')}`;
       if (monthlyMap[key]) monthlyMap[key].maintenance += m.cost;
     }
   });
-  const monthlyCostData = Object.entries(monthlyMap).map(([month, costs]) => ({
-    month,
-    fuel: Math.round(costs.fuel * 100) / 100,
-    maintenance: Math.round(costs.maintenance * 100) / 100,
+  const monthlyCostData = monthKeys.map((key, i) => ({
+    month: monthLabels[i],
+    fuel: Math.round(monthlyMap[key].fuel * 100) / 100,
+    maintenance: Math.round(monthlyMap[key].maintenance * 100) / 100,
   }));
 
-  // Fuel efficiency per vehicle (km/liter from completed trips)
-  const completedTrips = await prisma.trip.findMany({
+  // ── FleetCharts: Fuel efficiency per vehicle ──
+  const completedTripsForEfficiency = await prisma.trip.findMany({
     where: {
       status: "COMPLETED",
       endOdometer: { not: null },
@@ -170,7 +229,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
   });
 
   const efficiencyMap: Record<string, { totalKm: number; totalFuel: number }> = {};
-  completedTrips.forEach((t) => {
+  completedTripsForEfficiency.forEach(t => {
     const name = t.vehicle.registrationNumber;
     if (!efficiencyMap[name]) efficiencyMap[name] = { totalKm: 0, totalFuel: 0 };
     efficiencyMap[name].totalKm += (t.endOdometer! - t.startOdometer!);
@@ -194,6 +253,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
       driver: { select: { name: true } },
     }
   });
+
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -204,7 +264,7 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
       <DashboardFilters types={distinctTypes} regions={distinctRegions} />
 
       <KpiCards metrics={metrics} />
-      
+
       <FleetCharts
         vehicleStatusData={vehicleStatusData}
         monthlyCostData={monthlyCostData}
@@ -219,8 +279,8 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
           <VehicleStatusBars data={vehicleStatusData} />
         </div>
       </div>
-      
-      <DashboardCharts costData={costData} />
+
+      <DashboardCharts costData={costData} trendData={trendData} tripStatusData={tripStatusData} />
     </div>
   );
 }

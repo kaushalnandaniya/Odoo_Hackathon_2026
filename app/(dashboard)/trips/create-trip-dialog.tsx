@@ -106,7 +106,7 @@ export function CreateTripDialog({
                   </div>
                 )}
                 {vehicles.map((v) => (
-                  <SelectItem key={v.id} value={v.id}>
+                  <SelectItem key={v.id} value={v.id} label={`${v.name} · ${v.registrationNumber}`}>
                     {v.name} · {v.registrationNumber} · max {v.maxLoadCapacity} kg
                   </SelectItem>
                 ))}
@@ -129,7 +129,7 @@ export function CreateTripDialog({
                   </div>
                 )}
                 {drivers.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
+                  <SelectItem key={d.id} value={d.id} label={d.name}>
                     {d.name} · {d.licenseCategory} · safety {d.safetyScore}
                   </SelectItem>
                 ))}

@@ -72,11 +72,11 @@ export function LogExpenseDialog({ vehicles }: { vehicles: Vehicle[] }) {
                 <SelectValue placeholder="Select type..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="TOLL">Toll</SelectItem>
-                <SelectItem value="PARKING">Parking</SelectItem>
-                <SelectItem value="INSURANCE">Insurance</SelectItem>
-                <SelectItem value="PERMIT">Permit</SelectItem>
-                <SelectItem value="OTHER">Other</SelectItem>
+                <SelectItem value="TOLL" label="Toll">Toll</SelectItem>
+                <SelectItem value="PARKING" label="Parking">Parking</SelectItem>
+                <SelectItem value="INSURANCE" label="Insurance">Insurance</SelectItem>
+                <SelectItem value="PERMIT" label="Permit">Permit</SelectItem>
+                <SelectItem value="OTHER" label="Other">Other</SelectItem>
               </SelectContent>
             </Select>
           </div>
