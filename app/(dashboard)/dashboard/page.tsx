@@ -3,6 +3,7 @@ import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { DashboardCharts } from "@/components/dashboard/charts";
+import { FleetCharts } from "@/components/dashboard/fleet-charts";
 import { PendingUsers } from "@/components/dashboard/pending-users";
 import { VehicleStatus, DriverStatus, TripStatus } from "@prisma/client";
 import { RecentTrips } from "@/components/dashboard/recent-trips";
@@ -112,6 +113,77 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
   .sort((a, b) => b.total - a.total)
   .slice(0, 5); // Take top 5
 
+  // Monthly cost trend (last 6 months)
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+
+  const [monthlyFuel, monthlyMaint] = await Promise.all([
+    prisma.fuelLog.findMany({
+      where: { loggedAt: { gte: sixMonthsAgo } },
+      select: { totalCost: true, loggedAt: true },
+      orderBy: { loggedAt: "asc" },
+    }),
+    prisma.maintenanceLog.findMany({
+      where: { completedDate: { gte: sixMonthsAgo } },
+      select: { cost: true, completedDate: true },
+      orderBy: { completedDate: "asc" },
+    }),
+  ]);
+
+  const monthlyMap: Record<string, { fuel: number; maintenance: number }> = {};
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    monthlyMap[key] = { fuel: 0, maintenance: 0 };
+  }
+  monthlyFuel.forEach((f) => {
+    const key = `${f.loggedAt.getFullYear()}-${String(f.loggedAt.getMonth() + 1).padStart(2, "0")}`;
+    if (monthlyMap[key]) monthlyMap[key].fuel += f.totalCost;
+  });
+  monthlyMaint.forEach((m) => {
+    if (m.completedDate) {
+      const key = `${m.completedDate.getFullYear()}-${String(m.completedDate.getMonth() + 1).padStart(2, "0")}`;
+      if (monthlyMap[key]) monthlyMap[key].maintenance += m.cost;
+    }
+  });
+  const monthlyCostData = Object.entries(monthlyMap).map(([month, costs]) => ({
+    month,
+    fuel: Math.round(costs.fuel * 100) / 100,
+    maintenance: Math.round(costs.maintenance * 100) / 100,
+  }));
+
+  // Fuel efficiency per vehicle (km/liter from completed trips)
+  const completedTrips = await prisma.trip.findMany({
+    where: {
+      status: "COMPLETED",
+      endOdometer: { not: null },
+      startOdometer: { not: null },
+      fuelConsumed: { not: null, gt: 0 },
+    },
+    select: {
+      vehicle: { select: { registrationNumber: true } },
+      startOdometer: true,
+      endOdometer: true,
+      fuelConsumed: true,
+    },
+  });
+
+  const efficiencyMap: Record<string, { totalKm: number; totalFuel: number }> = {};
+  completedTrips.forEach((t) => {
+    const name = t.vehicle.registrationNumber;
+    if (!efficiencyMap[name]) efficiencyMap[name] = { totalKm: 0, totalFuel: 0 };
+    efficiencyMap[name].totalKm += (t.endOdometer! - t.startOdometer!);
+    efficiencyMap[name].totalFuel += t.fuelConsumed!;
+  });
+  const fuelEfficiencyData = Object.entries(efficiencyMap)
+    .map(([name, v]) => ({
+      name,
+      kmpl: Math.round((v.totalKm / v.totalFuel) * 100) / 100,
+    }))
+    .sort((a, b) => b.kmpl - a.kmpl)
+    .slice(0, 8);
+
   // Fetch recent trips
   const recentTripsData = await prisma.trip.findMany({
     where: tripWhere,
@@ -133,6 +205,12 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
 
       <KpiCards metrics={metrics} />
       
+      <FleetCharts
+        vehicleStatusData={vehicleStatusData}
+        monthlyCostData={monthlyCostData}
+        fuelEfficiencyData={fuelEfficiencyData}
+      />
+
       <div className="grid gap-6 md:grid-cols-7 mt-6">
         <div className="md:col-span-4 lg:col-span-5">
           <RecentTrips trips={recentTripsData} />
@@ -142,7 +220,6 @@ export default async function DashboardPage(props: { searchParams?: Promise<{ [k
         </div>
       </div>
       
-      {/* Existing Cost Bar Chart */}
       <DashboardCharts costData={costData} />
     </div>
   );
