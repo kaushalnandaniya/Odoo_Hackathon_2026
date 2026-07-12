@@ -18,7 +18,7 @@ export default async function MaintenancePage({
   searchParams: Promise<{ vehicleId?: string; status?: string }>;
 }) {
   const session = await auth();
-  const canManage = session?.user.role === "FLEET_MANAGER" || session?.user.role === "SAFETY_OFFICER";
+  const canManage = session?.user.role === "FLEET_MANAGER";
   const params = await searchParams;
 
   const where: Record<string, unknown> = {};
