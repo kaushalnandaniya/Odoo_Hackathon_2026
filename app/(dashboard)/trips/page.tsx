@@ -1,24 +1,7 @@
-export const revalidate = 60;
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { CreateTripDialog } from "./create-trip-dialog";
 import { TripActions } from "./trip-actions";
-
-const STATUS_VARIANT: Record<string, "default" | "secondary" | "destructive" | "outline"> = {
-  DRAFT: "outline",
-  DISPATCHED: "default",
-  COMPLETED: "secondary",
-  CANCELLED: "destructive",
-};
 
 export default async function TripsPage() {
   const session = await auth();
@@ -38,64 +21,68 @@ export default async function TripsPage() {
   ]);
 
   return (
-    <div className="space-y-4">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Trips</h1>
-          <p className="text-sm text-muted-foreground">
-            Dispatch, complete, or cancel trips. Statuses update automatically.
-          </p>
-        </div>
+        <h2 className="text-3xl font-bold tracking-tight">Trips</h2>
         {canManage && <CreateTripDialog vehicles={vehicles} drivers={drivers} />}
       </div>
 
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Code</TableHead>
-            <TableHead>Route</TableHead>
-            <TableHead>Vehicle</TableHead>
-            <TableHead>Driver</TableHead>
-            <TableHead className="text-right">Cargo (kg)</TableHead>
-            <TableHead className="text-right">Planned (km)</TableHead>
-            <TableHead>Status</TableHead>
-            {canManage && <TableHead className="text-right">Actions</TableHead>}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {trips.length === 0 && (
-            <TableRow>
-              <TableCell colSpan={8} className="py-10 text-center text-muted-foreground">
-                No trips yet. Create one to get started.
-              </TableCell>
-            </TableRow>
-          )}
-          {trips.map((trip) => (
-            <TableRow key={trip.id}>
-              <TableCell className="font-mono text-xs">{trip.tripCode}</TableCell>
-              <TableCell>
-                {trip.source} → {trip.destination}
-              </TableCell>
-              <TableCell>{trip.vehicle.name}</TableCell>
-              <TableCell>{trip.driver.name}</TableCell>
-              <TableCell className="text-right">{trip.cargoWeight}</TableCell>
-              <TableCell className="text-right">{trip.plannedDistance}</TableCell>
-              <TableCell>
-                <Badge variant={STATUS_VARIANT[trip.status] ?? "outline"}>{trip.status}</Badge>
-              </TableCell>
-              {canManage && (
-                <TableCell className="text-right">
-                  <TripActions
-                    tripId={trip.id}
-                    status={trip.status}
-                    startOdometer={trip.startOdometer}
-                  />
-                </TableCell>
-              )}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="rounded-md border">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="border-b bg-muted/50 text-left">
+              <th className="p-4 font-medium">Code</th>
+              <th className="p-4 font-medium">Route</th>
+              <th className="p-4 font-medium">Vehicle</th>
+              <th className="p-4 font-medium">Driver</th>
+              <th className="p-4 font-medium text-right">Cargo (kg)</th>
+              <th className="p-4 font-medium text-right">Planned (km)</th>
+              <th className="p-4 font-medium">Status</th>
+              {canManage && <th className="p-4 font-medium text-right">Action</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {trips.length === 0 ? (
+              <tr>
+                <td colSpan={canManage ? 8 : 7} className="p-4 text-center text-muted-foreground">
+                  No trips yet. Create one to get started.
+                </td>
+              </tr>
+            ) : (
+              trips.map((trip) => (
+                <tr key={trip.id} className="border-b">
+                  <td className="p-4 font-mono text-xs font-medium">{trip.tripCode}</td>
+                  <td className="p-4">{trip.source} → {trip.destination}</td>
+                  <td className="p-4">{trip.vehicle.name}</td>
+                  <td className="p-4">{trip.driver.name}</td>
+                  <td className="p-4 text-right">{trip.cargoWeight}</td>
+                  <td className="p-4 text-right">{trip.plannedDistance}</td>
+                  <td className="p-4">
+                    <span className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${
+                      trip.status === "DRAFT" ? "bg-gray-100 text-gray-800" :
+                      trip.status === "DISPATCHED" ? "bg-blue-100 text-blue-800" :
+                      trip.status === "COMPLETED" ? "bg-green-100 text-green-800" :
+                      trip.status === "CANCELLED" ? "bg-red-100 text-red-800" :
+                      "bg-gray-100 text-gray-800"
+                    }`}>
+                      {trip.status}
+                    </span>
+                  </td>
+                  {canManage && (
+                    <td className="p-4 text-right">
+                      <TripActions
+                        tripId={trip.id}
+                        status={trip.status}
+                        startOdometer={trip.startOdometer}
+                      />
+                    </td>
+                  )}
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
