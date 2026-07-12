@@ -1,3 +1,4 @@
+import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { KpiCards } from "@/components/dashboard/kpi-cards";
 import { DashboardCharts } from "@/components/dashboard/charts";
@@ -5,6 +6,8 @@ import { PendingUsers } from "@/components/dashboard/pending-users";
 import { VehicleStatus, DriverStatus, TripStatus } from "@prisma/client";
 
 export default async function DashboardPage() {
+  const session = await auth();
+  const isAdmin = session?.user?.role === "FLEET_MANAGER";
   // Execute all Prisma count queries in parallel for performance
   const [
     activeVehicles,
@@ -74,13 +77,6 @@ export default async function DashboardPage() {
   .sort((a, b) => b.total - a.total)
   .slice(0, 5); // Take top 5
 
-  // Fetch pending users for the admin approval section
-  const pendingUsers = await prisma.user.findMany({
-    where: { role: "PENDING" },
-    select: { id: true, name: true, email: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
-  });
-
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
@@ -89,8 +85,17 @@ export default async function DashboardPage() {
       <KpiCards metrics={metrics} />
       <DashboardCharts statusData={statusData} costData={costData} />
       
-      {/* Admin Role Assignment Section */}
-      <PendingUsers users={pendingUsers} />
+      {/* Admin Role Assignment Section — only visible to Fleet Managers */}
+      {isAdmin && <PendingUsersFetch />}
     </div>
   );
+}
+
+async function PendingUsersFetch() {
+  const pendingUsers = await prisma.user.findMany({
+    where: { role: "PENDING" },
+    select: { id: true, name: true, email: true, createdAt: true },
+    orderBy: { createdAt: "desc" },
+  });
+  return <PendingUsers users={pendingUsers} />;
 }
