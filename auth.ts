@@ -1,4 +1,4 @@
-import NextAuth from "next-auth";
+import NextAuth, { CredentialsSignin } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
@@ -26,6 +26,13 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
         const valid = await bcrypt.compare(parsed.data.password, user.passwordHash);
         if (!valid) return null;
+
+        if (user.role === "PENDING") {
+          class PendingApprovalError extends CredentialsSignin {
+            code = "PENDING_APPROVAL";
+          }
+          throw new PendingApprovalError();
+        }
 
         return { id: user.id, email: user.email, name: user.name, role: user.role };
       },

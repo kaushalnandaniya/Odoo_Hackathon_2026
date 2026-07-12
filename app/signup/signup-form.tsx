@@ -8,11 +8,15 @@ export function SignupForm() {
 
   return (
     <form action={formAction} className="space-y-6 mt-4">
-      {error && (
+      {error && error.startsWith("SUCCESS:") ? (
+        <div className="bg-emerald-100 text-emerald-700 p-4 rounded-xl text-[0.95rem] font-bold border border-emerald-500/30 shadow-sm">
+          {error.replace("SUCCESS: ", "")}
+        </div>
+      ) : error ? (
         <div className="bg-red-100 text-[#ef4444] p-4 rounded-xl text-[0.95rem] font-bold border border-[#ef4444]/30 shadow-sm">
           {error}
         </div>
-      )}
+      ) : null}
       
       <div className="space-y-2">
         <label htmlFor="name" className="block text-[0.95rem] font-bold text-[#111827]">Full Name</label>

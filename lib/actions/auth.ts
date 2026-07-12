@@ -10,10 +10,16 @@ export async function login(_prev: string | undefined, formData: FormData) {
     await signIn("credentials", {
       email: formData.get("email"),
       password: formData.get("password"),
-      redirectTo: "/dashboard",
+      redirectTo: "/dashboard", // This will be intercepted by auth.config.ts middleware
     });
   } catch (error) {
     if (error instanceof AuthError) {
+      // NextAuth wraps our custom error, we check the code or the stringified cause
+      const errString = String(error.cause?.err || error.message);
+      
+      if (errString.includes("PENDING_APPROVAL") || (error as any).code === "PENDING_APPROVAL") {
+        return "Your account is pending admin approval. You cannot log in yet.";
+      }
       return "Invalid email or password.";
     }
     throw error; // NEXT_REDIRECT on success must propagate
@@ -36,7 +42,7 @@ export async function register(_prev: string | undefined, formData: FormData) {
       return "Email is already registered.";
     }
 
-    // Hash password and create user
+    // Hash password and create user with default PENDING role (as defined in schema)
     const passwordHash = await bcrypt.hash(password, 10);
     await prisma.user.create({
       data: {
@@ -51,16 +57,9 @@ export async function register(_prev: string | undefined, formData: FormData) {
     return "Server error during registration.";
   }
 
-  // Auto-login after successful registration
-  try {
-    await signIn("credentials", {
-      email,
-      password,
-      redirectTo: "/dashboard",
-    });
-  } catch (error) {
-    throw error; 
-  }
+  // Instead of auto-login, return a special success code or message
+  // Returning a specific string that the client can parse to show success.
+  return "SUCCESS: Account created. Please wait for an admin to approve your role before logging in.";
 }
 
 export async function logout() {

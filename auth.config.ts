@@ -26,16 +26,27 @@ export const authConfig = {
       const loggedIn = !!auth?.user;
       const role = auth?.user?.role;
 
+      // Route user to their designated dashboard
+      const getRoleDashboard = (role: string | undefined) => {
+        switch (role) {
+          case "FLEET_MANAGER": return "/dashboard";
+          case "FINANCIAL_ANALYST": return "/reports";
+          case "DRIVER": return "/trips";
+          case "SAFETY_OFFICER": return "/drivers";
+          default: return "/login";
+        }
+      };
+
       if (pathname === "/login" || pathname === "/signup") {
-        if (loggedIn) return Response.redirect(new URL("/dashboard", request.nextUrl));
+        if (loggedIn) return Response.redirect(new URL(getRoleDashboard(role), request.nextUrl));
         return true;
       }
       if (pathname === "/") {
-        return Response.redirect(new URL(loggedIn ? "/dashboard" : "/login", request.nextUrl));
+        return Response.redirect(new URL(loggedIn ? getRoleDashboard(role) : "/login", request.nextUrl));
       }
       if (!loggedIn) return false; // redirects to /login
       if (!canAccess(role, pathname)) {
-        return Response.redirect(new URL("/dashboard", request.nextUrl));
+        return Response.redirect(new URL(getRoleDashboard(role), request.nextUrl));
       }
       return true;
     },
