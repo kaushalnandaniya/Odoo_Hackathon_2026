@@ -3,7 +3,6 @@ import { auth } from "@/auth";
 import { CreateMaintenanceDialog } from "./create-maintenance-dialog";
 import { MaintenanceActions } from "./maintenance-actions";
 
-<<<<<<< Updated upstream
 export default async function MaintenancePage({
   searchParams,
 }: {
@@ -25,34 +24,6 @@ export default async function MaintenancePage({
     }),
     prisma.vehicle.findMany({ orderBy: { name: "asc" } }),
   ]);
-=======
-import { auth } from "@/auth";
-
-export default async function MaintenancePage() {
-  const session = await auth();
-  const isDriver = session?.user.role === "DRIVER";
-
-  let driverId: string | undefined = undefined;
-  if (isDriver && session?.user?.id) {
-    const driverRecord = await prisma.driver.findUnique({ where: { userId: session.user.id } });
-    driverId = driverRecord?.id || "unassigned";
-  }
-
-  const vehicleWhere = isDriver ? { trips: { some: { driverId } } } : undefined;
-
-  const vehicles = await prisma.vehicle.findMany({
-    where: { 
-      status: VehicleStatus.AVAILABLE,
-      ...vehicleWhere
-    }
-  });
-
-  const logs = await prisma.maintenanceLog.findMany({
-    where: isDriver ? { vehicle: { trips: { some: { driverId } } } } : undefined,
-    include: { vehicle: true },
-    orderBy: { createdAt: "desc" }
-  });
->>>>>>> Stashed changes
 
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
