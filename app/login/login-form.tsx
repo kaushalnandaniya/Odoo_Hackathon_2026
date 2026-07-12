@@ -2,9 +2,6 @@
 
 import { useActionState } from "react";
 import { login } from "@/lib/actions/auth";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 export function LoginForm() {
   const [error, formAction, pending] = useActionState(login, undefined);

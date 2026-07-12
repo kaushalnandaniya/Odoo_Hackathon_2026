@@ -10,7 +10,6 @@ export default async function DashboardPage() {
     activeVehicles,
     availableVehicles,
     inMaintenance,
-    retiredVehicles,
     activeTrips,
     pendingTrips,
     availableDrivers,

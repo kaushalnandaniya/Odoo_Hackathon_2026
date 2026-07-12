@@ -41,7 +41,7 @@ export function PendingUsers({ users }: { users: PendingUser[] }) {
       } else {
         toast.error(result.error || "Failed to approve user.");
       }
-    } catch (error) {
+    } catch {
       toast.error("An unexpected error occurred.");
     } finally {
       setLoadingId(null);

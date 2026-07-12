@@ -3,10 +3,19 @@ import type { UserRole } from "@prisma/client";
 // Route-prefix access map. FLEET_MANAGER sees everything.
 // Per the brief, the DRIVER role creates trips and monitors deliveries.
 const ACCESS: Record<UserRole, string[]> = {
+  PENDING: [],
   FLEET_MANAGER: ["*"],
   DRIVER: ["/dashboard", "/trips"],
   SAFETY_OFFICER: ["/dashboard", "/drivers"],
   FINANCIAL_ANALYST: ["/dashboard", "/reports", "/fuel-expenses"],
+};
+
+export const DEFAULT_ROUTE: Record<UserRole, string> = {
+  PENDING: "/pending",
+  FLEET_MANAGER: "/dashboard",
+  DRIVER: "/dashboard",
+  SAFETY_OFFICER: "/dashboard",
+  FINANCIAL_ANALYST: "/dashboard",
 };
 
 export const NAV_ITEMS: { href: string; label: string }[] = [

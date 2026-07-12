@@ -5,7 +5,7 @@ import { signIn, signOut } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
-export async function login(_prev: string | undefined, formData: FormData) {
+export async function login(prevState: unknown, formData: FormData) {
   try {
     await signIn("credentials", {
       email: formData.get("email"),
@@ -17,7 +17,7 @@ export async function login(_prev: string | undefined, formData: FormData) {
       // NextAuth wraps our custom error, we check the code or the stringified cause
       const errString = String(error.cause?.err || error.message);
       
-      if (errString.includes("PENDING_APPROVAL") || (error as any).code === "PENDING_APPROVAL") {
+      if (errString.includes("PENDING_APPROVAL") || (error as { code?: string }).code === "PENDING_APPROVAL") {
         return "Your account is pending admin approval. You cannot log in yet.";
       }
       return "Invalid email or password.";
