@@ -1,5 +1,6 @@
 "use server";
 
+import { requireRole } from "@/lib/authz";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -14,6 +15,7 @@ const createLogSchema = z.object({
 });
 
 export async function createMaintenanceLog(prevState: unknown, formData: FormData) {
+  await requireRole(["FLEET_MANAGER"]);
   try {
     const rawData = Object.fromEntries(formData.entries());
     const validatedData = createLogSchema.safeParse(rawData);
@@ -60,6 +62,7 @@ export async function createMaintenanceLog(prevState: unknown, formData: FormDat
 }
 
 export async function closeMaintenanceLog(id: string) {
+  await requireRole(["FLEET_MANAGER"]);
   try {
     await prisma.$transaction(async (tx) => {
       const log = await tx.maintenanceLog.findUnique({

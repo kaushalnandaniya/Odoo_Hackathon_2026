@@ -52,9 +52,9 @@ export function SignupForm() {
         </motion.div>
       ) : null}
       
-      <motion.div variants={itemVariants} className="space-y-2 relative group">
+      <motion.div variants={itemVariants} className="space-y-2 relative group" suppressHydrationWarning>
         <label htmlFor="name" className="block text-sm font-semibold text-foreground/80 ml-1">Full Name</label>
-        <div className="relative">
+        <div className="relative" suppressHydrationWarning>
           <User className="absolute z-10 left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             id="name"
@@ -68,9 +68,9 @@ export function SignupForm() {
         </div>
       </motion.div>
 
-      <motion.div variants={itemVariants} className="space-y-2 relative group">
+      <motion.div variants={itemVariants} className="space-y-2 relative group" suppressHydrationWarning>
         <label htmlFor="email" className="block text-sm font-semibold text-foreground/80 ml-1">Email Address</label>
-        <div className="relative">
+        <div className="relative" suppressHydrationWarning>
           <Mail className="absolute z-10 left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             id="email"
@@ -84,9 +84,9 @@ export function SignupForm() {
         </div>
       </motion.div>
       
-      <motion.div variants={itemVariants} className="space-y-2 relative group">
+      <motion.div variants={itemVariants} className="space-y-2 relative group" suppressHydrationWarning>
         <label htmlFor="password" className="block text-sm font-semibold text-foreground/80 ml-1">Password</label>
-        <div className="relative">
+        <div className="relative" suppressHydrationWarning>
           <Lock className="absolute z-10 left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             id="password"

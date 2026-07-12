@@ -3,7 +3,7 @@ import { LoginForm } from "./login-form";
 
 export default function LoginPage() {
   return (
-    <div className="grid min-h-screen lg:grid-cols-2 bg-background font-sans selection:bg-primary/20">
+    <div className="grid min-h-screen lg:grid-cols-2 bg-background font-sans selection:bg-primary/20" suppressHydrationWarning>
       
       {/* Left Panel: Immersive Branding & Animated Mesh */}
       <div className="relative hidden lg:flex flex-col items-start justify-between p-12 overflow-hidden bg-zinc-950 text-white">

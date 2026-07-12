@@ -28,7 +28,7 @@ const updateVehicleSchema = z.object({
 });
 
 export async function createVehicle(prevState: unknown, formData: FormData) {
-  await requireRole(["FLEET_MANAGER", "SAFETY_OFFICER"]);
+  await requireRole(["FLEET_MANAGER"]);
   try {
     const rawData = Object.fromEntries(formData.entries());
     const validatedData = createVehicleSchema.safeParse(rawData);
@@ -61,7 +61,7 @@ export async function createVehicle(prevState: unknown, formData: FormData) {
 }
 
 export async function updateVehicle(_prev: unknown, formData: FormData) {
-  await requireRole(["FLEET_MANAGER", "SAFETY_OFFICER"]);
+  await requireRole(["FLEET_MANAGER"]);
   try {
     const rawData = Object.fromEntries(formData.entries());
     const validatedData = updateVehicleSchema.safeParse(rawData);
