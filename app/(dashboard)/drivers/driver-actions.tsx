@@ -7,12 +7,15 @@ import { Button } from "@/components/ui/button";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Trash2, MoreHorizontal, UserCheck, UserX, UserMinus } from "lucide-react";
+import { Trash2, MoreHorizontal, UserCheck, UserX, UserMinus, Star } from "lucide-react";
 import { EditDriverDialog } from "./edit-driver-dialog";
+import { RateDriverDialog } from "./rate-driver-dialog";
 import { toast } from "sonner";
+import { useState } from "react";
 
 export function DriverActions({ driver, canDelete }: { driver: Driver; canDelete?: boolean }) {
   const [isPending, startTransition] = useTransition();
+  const [isRateOpen, setIsRateOpen] = useState(false);
 
   const handleStatus = (status: DriverStatus) => {
     startTransition(async () => {
@@ -37,11 +40,15 @@ export function DriverActions({ driver, canDelete }: { driver: Driver; canDelete
   return (
     <div className="flex justify-end gap-1">
       <EditDriverDialog driver={driver} />
+      <RateDriverDialog driver={driver} open={isRateOpen} onOpenChange={setIsRateOpen} />
       <DropdownMenu>
         <DropdownMenuTrigger render={<Button variant="ghost" size="icon" />}>
           <MoreHorizontal className="h-4 w-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
+          <DropdownMenuItem onClick={() => setIsRateOpen(true)}>
+            <Star className="mr-2 h-4 w-4" /> Rate Driver
+          </DropdownMenuItem>
           {driver.status !== "AVAILABLE" && (
             <DropdownMenuItem onClick={() => handleStatus("AVAILABLE")}>
               <UserCheck className="mr-2 h-4 w-4" /> Set Available

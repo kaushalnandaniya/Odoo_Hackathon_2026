@@ -2,18 +2,37 @@ export const revalidate = 60;
 import { prisma } from "@/lib/prisma";
 import { LogFuelDialog } from "./log-fuel-dialog";
 import { LogExpenseDialog } from "./log-expense-dialog";
+import { auth } from "@/auth";
+import { TripStatus } from "@prisma/client";
 
 export default async function FuelExpensesPage() {
+  const session = await auth();
+  const isDriver = session?.user.role === "DRIVER";
+
+  let driverId: string | undefined = undefined;
+  if (isDriver && session?.user?.id) {
+    const driverRecord = await prisma.driver.findUnique({ where: { userId: session.user.id } });
+    driverId = driverRecord?.id || "unassigned";
+  }
+
+  // Driver only sees vehicles they are currently on an active trip with
+  const vehicleWhere = isDriver ? { 
+    trips: { some: { driverId, status: TripStatus.DISPATCHED } } 
+  } : undefined;
+
   const vehicles = await prisma.vehicle.findMany({
+    where: vehicleWhere,
     orderBy: { name: "asc" }
   });
 
   const [fuelLogs, expenses] = await Promise.all([
     prisma.fuelLog.findMany({
+      where: isDriver ? { vehicle: { trips: { some: { driverId, status: TripStatus.DISPATCHED } } } } : undefined,
       include: { vehicle: true },
       orderBy: { loggedAt: "desc" }
     }),
     prisma.expense.findMany({
+      where: isDriver ? { vehicle: { trips: { some: { driverId, status: TripStatus.DISPATCHED } } } } : undefined,
       include: { vehicle: true },
       orderBy: { expenseDate: "desc" }
     })

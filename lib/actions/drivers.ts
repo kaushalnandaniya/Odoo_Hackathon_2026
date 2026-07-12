@@ -131,3 +131,28 @@ export async function deleteDriver(id: string) {
     return { error: "Failed to delete driver." };
   }
 }
+
+export async function rateDriver(driverId: string, scoreAdjustment: number) {
+  await requireRole(["FLEET_MANAGER", "SAFETY_OFFICER"]);
+  try {
+    const driver = await prisma.driver.findUnique({ where: { id: driverId } });
+    if (!driver) return { error: "Driver not found" };
+
+    const newScore = Math.max(0, Math.min(100, driver.safetyScore + scoreAdjustment));
+    const newStatus = newScore < 30 ? DriverStatus.SUSPENDED : driver.status;
+
+    await prisma.driver.update({
+      where: { id: driverId },
+      data: { 
+        safetyScore: newScore,
+        status: newStatus
+      }
+    });
+
+    revalidatePath("/drivers");
+    return { success: true, newScore, newStatus };
+  } catch (error) {
+    console.error("Error rating driver:", error);
+    return { error: "Failed to rate driver." };
+  }
+}

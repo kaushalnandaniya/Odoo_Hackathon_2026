@@ -111,7 +111,7 @@ model Driver {
   licenseCategory   String       @map("license_category")
   licenseExpiryDate DateTime     @map("license_expiry_date")
   contactNumber     String       @map("contact_number")
-  safetyScore       Float        @default(0) @map("safety_score")
+  safetyScore       Float        @default(100) @map("safety_score")
   status            DriverStatus @default(AVAILABLE)
   createdAt         DateTime     @default(now()) @map("created_at")
   updatedAt         DateTime     @updatedAt @map("updated_at")

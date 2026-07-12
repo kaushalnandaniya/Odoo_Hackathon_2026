@@ -5,11 +5,21 @@ import { TripActions } from "./trip-actions";
 
 export default async function TripsPage() {
   const session = await auth();
-  const canManage =
-    session?.user.role === "FLEET_MANAGER" || session?.user.role === "DRIVER";
+  const isDriver = session?.user.role === "DRIVER";
+  const canManage = session?.user.role === "FLEET_MANAGER" || isDriver;
+  const canCreateTrip = session?.user.role === "FLEET_MANAGER";
+
+  let driverId: string | undefined = undefined;
+  if (isDriver && session?.user?.id) {
+    const driverRecord = await prisma.driver.findUnique({ where: { userId: session.user.id } });
+    driverId = driverRecord?.id || "unassigned";
+  }
+
+  const tripWhere = isDriver ? { driverId } : undefined;
 
   const [trips, vehicles, drivers] = await Promise.all([
     prisma.trip.findMany({
+      where: tripWhere,
       include: { vehicle: true, driver: true },
       orderBy: { createdAt: "desc" },
     }),
@@ -23,8 +33,18 @@ export default async function TripsPage() {
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
+<<<<<<< Updated upstream
         <h2 className="text-3xl font-bold tracking-tight">Trips</h2>
         {canManage && <CreateTripDialog vehicles={vehicles} drivers={drivers} />}
+=======
+        <div>
+          <h1 className="text-2xl font-bold">Trips</h1>
+          <p className="text-sm text-muted-foreground">
+            Dispatch, complete, or cancel trips. Statuses update automatically.
+          </p>
+        </div>
+        {canCreateTrip && <CreateTripDialog vehicles={vehicles} drivers={drivers} />}
+>>>>>>> Stashed changes
       </div>
 
       <div className="rounded-md border">

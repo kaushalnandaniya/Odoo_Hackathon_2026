@@ -5,15 +5,15 @@ import type { UserRole } from "@prisma/client";
 const ACCESS: Record<UserRole, string[]> = {
   PENDING: [],
   FLEET_MANAGER: ["*"],
-  DRIVER: ["/dashboard", "/trips"],
-  SAFETY_OFFICER: ["/dashboard", "/drivers"],
-  FINANCIAL_ANALYST: ["/dashboard", "/reports", "/fuel-expenses"],
+  DRIVER: ["/trips", "/fuel-expenses"],
+  SAFETY_OFFICER: ["/dashboard", "/drivers", "/maintenance"],
+  FINANCIAL_ANALYST: ["/dashboard", "/reports", "/fuel-expenses", "/maintenance"],
 };
 
 export const DEFAULT_ROUTE: Record<UserRole, string> = {
   PENDING: "/pending",
   FLEET_MANAGER: "/dashboard",
-  DRIVER: "/dashboard",
+  DRIVER: "/trips",
   SAFETY_OFFICER: "/dashboard",
   FINANCIAL_ANALYST: "/dashboard",
 };
@@ -29,7 +29,6 @@ export const NAV_ITEMS: { href: string; label: string }[] = [
 ];
 
 export function canAccess(role: UserRole | undefined, pathname: string, email?: string | null): boolean {
-  if (process.env.NODE_ENV === "development" && email === "khush@gmail.com") return true;
   if (!role) return false;
   const allowed = ACCESS[role];
   if (!allowed) return false;
@@ -38,6 +37,5 @@ export function canAccess(role: UserRole | undefined, pathname: string, email?: 
 }
 
 export function navItemsFor(role: UserRole | undefined, email?: string | null) {
-  if (process.env.NODE_ENV === "development" && email === "khush@gmail.com") return NAV_ITEMS;
   return NAV_ITEMS.filter((item) => canAccess(role, item.href, email));
 }

@@ -25,6 +25,7 @@ export default async function DriversPage() {
               <th className="p-4 font-medium">Name</th>
               <th className="p-4 font-medium">License No.</th>
               <th className="p-4 font-medium">Category</th>
+              <th className="p-4 font-medium">Safety Score</th>
               <th className="p-4 font-medium">Expiry</th>
               <th className="p-4 font-medium">Contact</th>
               <th className="p-4 font-medium">Status</th>
@@ -46,6 +47,11 @@ export default async function DriversPage() {
                     <td className="p-4 font-medium">{driver.name}</td>
                     <td className="p-4">{driver.licenseNumber}</td>
                     <td className="p-4">{driver.licenseCategory}</td>
+                    <td className="p-4">
+                      <span className={driver.safetyScore < 30 ? "text-destructive font-bold" : "font-medium"}>
+                        {driver.safetyScore}
+                      </span>
+                    </td>
                     <td className="p-4">
                       <span className={isExpired ? "text-destructive font-bold" : ""}>
                         {new Date(driver.licenseExpiryDate).toLocaleDateString()}
