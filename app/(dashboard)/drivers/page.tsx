@@ -1,9 +1,12 @@
-export const revalidate = 60;
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { CreateDriverDialog } from "./create-driver-dialog";
 import { DriverActions } from "./driver-actions";
 
 export default async function DriversPage() {
+  const session = await auth();
+  const canDelete = session?.user.role === "FLEET_MANAGER";
+  const canManage = session?.user.role === "FLEET_MANAGER" || session?.user.role === "SAFETY_OFFICER";
   const drivers = await prisma.driver.findMany({
     orderBy: { createdAt: "desc" }
   });
@@ -12,7 +15,7 @@ export default async function DriversPage() {
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Drivers</h2>
-        <CreateDriverDialog />
+        {canManage && <CreateDriverDialog />}
       </div>
       
       <div className="rounded-md border">
@@ -60,7 +63,7 @@ export default async function DriversPage() {
                       </span>
                     </td>
                     <td className="p-4">
-                      <DriverActions driver={driver} />
+                      <DriverActions driver={driver} canDelete={canDelete} />
                     </td>
                   </tr>
                 );

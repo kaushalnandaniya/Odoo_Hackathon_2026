@@ -2,7 +2,6 @@
 
 import { useTransition } from "react";
 import type { Driver, DriverStatus } from "@prisma/client";
-import { useSession } from "next-auth/react";
 import { deleteDriver, updateDriverStatus } from "@/lib/actions/drivers";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,9 +11,7 @@ import { Trash2, MoreHorizontal, UserCheck, UserX, UserMinus } from "lucide-reac
 import { EditDriverDialog } from "./edit-driver-dialog";
 import { toast } from "sonner";
 
-export function DriverActions({ driver }: { driver: Driver }) {
-  const { data: session } = useSession();
-  const isFleetManager = session?.user?.role === "FLEET_MANAGER";
+export function DriverActions({ driver, canDelete }: { driver: Driver; canDelete?: boolean }) {
   const [isPending, startTransition] = useTransition();
 
   const handleStatus = (status: DriverStatus) => {
@@ -60,7 +57,7 @@ export function DriverActions({ driver }: { driver: Driver }) {
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-      {isFleetManager && (
+      {canDelete && (
         <Button
           variant="ghost"
           size="icon"
