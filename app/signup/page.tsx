@@ -1,8 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { LoginForm } from "./login-form";
+import { SignupForm } from "./signup-form";
 
-export default function LoginPage() {
+export default function SignupPage() {
   return (
     <div className="grid min-h-screen lg:grid-cols-2 bg-[#f8f9fa]">
       {/* Left: form */}
@@ -14,23 +14,23 @@ export default function LoginPage() {
           </p>
           
           <h2 className="text-[1.8rem] font-bold tracking-wide uppercase mb-2 text-[#111827]">
-            Sign in to your account
+            Create an account
           </h2>
           <p className="mb-8 text-[1rem] text-slate-500 font-medium">
-            Enter your credentials to continue.
+            Join the network. Enter your details below.
           </p>
           
-          <LoginForm />
+          <SignupForm />
           
           <div className="mt-8 text-center text-[0.95rem] text-slate-500 font-medium">
-            Don't have an account?{" "}
-            <Link href="/signup" className="font-bold text-[#ef4444] hover:underline">
-              Sign up for free!
+            Already have an account?{" "}
+            <Link href="/login" className="font-bold text-[#ef4444] hover:underline">
+              Sign in instead!
             </Link>
           </div>
         </div>
       </div>
-      {/* Right: illustration (from the original design) */}
+      {/* Right: illustration */}
       <div className="relative hidden items-center justify-center bg-[#e2e8f0] lg:flex border-l-[12px] border-[#111827]">
         <Image
           src="/illustration.png"
