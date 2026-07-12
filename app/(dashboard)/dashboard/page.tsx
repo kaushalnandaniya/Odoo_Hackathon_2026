@@ -6,14 +6,33 @@ import { PendingUsers } from "@/components/dashboard/pending-users";
 import { VehicleStatus, DriverStatus, TripStatus } from "@prisma/client";
 import { RecentTrips } from "@/components/dashboard/recent-trips";
 import { VehicleStatusBars } from "@/components/dashboard/vehicle-status-bars";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Label } from "@/components/ui/label";
+import { DashboardFilters } from "@/components/dashboard/dashboard-filters";
 
-export default async function DashboardPage() {
+export default async function DashboardPage(props: { searchParams?: Promise<{ [key: string]: string | string[] | undefined }> }) {
+  const searchParams = await props.searchParams;
   const session = await auth();
   const isAdmin = session?.user?.role === "FLEET_MANAGER";
-  // Execute all Prisma count queries in parallel for performance
+
+  const type = typeof searchParams?.type === 'string' ? searchParams.type : undefined;
+  const statusFilter = typeof searchParams?.status === 'string' ? searchParams.status.toUpperCase() : undefined;
+  const region = typeof searchParams?.region === 'string' ? searchParams.region : undefined;
+
+  const vehicleFilter = {
+    ...(type && { type: { equals: type, mode: "insensitive" as const } }),
+    ...(region && { region: { equals: region, mode: "insensitive" as const } }),
+  };
+
+  const tripWhere = {
+    vehicle: {
+      ...vehicleFilter,
+      ...(statusFilter && { status: statusFilter as VehicleStatus }),
+    }
+  };
+
+  // Execute all Prisma queries in parallel
   const [
+    distinctTypesRaw,
+    distinctRegionsRaw,
     activeVehicles,
     availableVehicles,
     inMaintenance,
@@ -23,15 +42,20 @@ export default async function DashboardPage() {
     availableDrivers,
     onTripDrivers,
   ] = await Promise.all([
-    prisma.vehicle.count({ where: { status: VehicleStatus.ON_TRIP } }),
-    prisma.vehicle.count({ where: { status: VehicleStatus.AVAILABLE } }),
-    prisma.vehicle.count({ where: { status: VehicleStatus.IN_SHOP } }),
-    prisma.vehicle.count({ where: { status: VehicleStatus.RETIRED } }),
-    prisma.trip.count({ where: { status: TripStatus.DISPATCHED } }),
-    prisma.trip.count({ where: { status: TripStatus.DRAFT } }),
+    prisma.vehicle.findMany({ select: { type: true }, distinct: ['type'] }),
+    prisma.vehicle.findMany({ select: { region: true }, distinct: ['region'] }),
+    statusFilter && statusFilter !== 'ON_TRIP' ? 0 : prisma.vehicle.count({ where: { ...vehicleFilter, status: VehicleStatus.ON_TRIP } }),
+    statusFilter && statusFilter !== 'AVAILABLE' ? 0 : prisma.vehicle.count({ where: { ...vehicleFilter, status: VehicleStatus.AVAILABLE } }),
+    statusFilter && statusFilter !== 'IN_SHOP' ? 0 : prisma.vehicle.count({ where: { ...vehicleFilter, status: VehicleStatus.IN_SHOP } }),
+    statusFilter && statusFilter !== 'RETIRED' ? 0 : prisma.vehicle.count({ where: { ...vehicleFilter, status: VehicleStatus.RETIRED } }),
+    prisma.trip.count({ where: { ...tripWhere, status: TripStatus.DISPATCHED } }),
+    prisma.trip.count({ where: { ...tripWhere, status: TripStatus.DRAFT } }),
     prisma.driver.count({ where: { status: DriverStatus.AVAILABLE } }),
     prisma.driver.count({ where: { status: DriverStatus.ON_TRIP } }),
   ]);
+
+  const distinctTypes = distinctTypesRaw.map(t => t.type).filter(Boolean);
+  const distinctRegions = distinctRegionsRaw.map(r => r.region).filter(Boolean) as string[];
 
   const totalNonRetired = activeVehicles + availableVehicles + inMaintenance;
   const fleetUtilization = totalNonRetired > 0 
@@ -58,6 +82,10 @@ export default async function DashboardPage() {
 
   // Fetch all vehicles with their related maintenance and fuel logs for the Cost Bar Chart
   const vehiclesWithCosts = await prisma.vehicle.findMany({
+    where: {
+      ...vehicleFilter,
+      ...(statusFilter && { status: statusFilter as VehicleStatus }),
+    },
     select: {
       registrationNumber: true,
       maintenanceLogs: {
@@ -85,6 +113,7 @@ export default async function DashboardPage() {
 
   // Fetch recent trips
   const recentTripsData = await prisma.trip.findMany({
+    where: tripWhere,
     take: 5,
     orderBy: { createdAt: "desc" },
     include: {
@@ -92,57 +121,15 @@ export default async function DashboardPage() {
       driver: { select: { name: true } },
     }
   });
+
+>>>>>>> Stashed changes
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
         <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
       </div>
 
-      {/* Filter Bar (UI Mockup) */}
-      <div className="space-y-1">
-        <h3 className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">Filters</h3>
-        <div className="flex flex-wrap items-center gap-4">
-          <div className="flex items-center space-x-2">
-            <Label className="text-xs text-muted-foreground whitespace-nowrap">Vehicle Type:</Label>
-            <Select defaultValue="all">
-              <SelectTrigger className="h-8 w-32 text-xs bg-background/50">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="truck">Trucks</SelectItem>
-                <SelectItem value="van">Vans</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Label className="text-xs text-muted-foreground whitespace-nowrap">Status:</Label>
-            <Select defaultValue="all">
-              <SelectTrigger className="h-8 w-32 text-xs bg-background/50">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="available">Available</SelectItem>
-                <SelectItem value="on_trip">On Trip</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex items-center space-x-2">
-            <Label className="text-xs text-muted-foreground whitespace-nowrap">Region:</Label>
-            <Select defaultValue="all">
-              <SelectTrigger className="h-8 w-32 text-xs bg-background/50">
-                <SelectValue placeholder="All" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="north">North</SelectItem>
-                <SelectItem value="south">South</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
+      <DashboardFilters types={distinctTypes} regions={distinctRegions} />
 
       <KpiCards metrics={metrics} />
       
@@ -157,7 +144,7 @@ export default async function DashboardPage() {
       
       {/* Existing Cost Bar Chart */}
       <DashboardCharts costData={costData} />
-      
+
       {/* Admin Role Assignment Section — only visible to Fleet Managers */}
       {isAdmin && <PendingUsersFetch />}
     </div>
