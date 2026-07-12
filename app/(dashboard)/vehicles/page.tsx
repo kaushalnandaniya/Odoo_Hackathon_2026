@@ -53,7 +53,7 @@ export default async function VehiclesPage() {
                     </span>
                   </td>
                   <td className="p-4">
-                    <VehicleActions vehicleId={vehicle.id} status={vehicle.status} />
+                    <VehicleActions vehicle={vehicle} />
                   </td>
                 </tr>
               ))

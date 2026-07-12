@@ -59,7 +59,7 @@ export default async function DriversPage() {
                       </span>
                     </td>
                     <td className="p-4">
-                      <DriverActions driverId={driver.id} status={driver.status} />
+                      <DriverActions driver={driver} />
                     </td>
                   </tr>
                 );
