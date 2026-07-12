@@ -2,7 +2,7 @@ import type { NextAuthConfig } from "next-auth";
 import type { UserRole } from "@prisma/client";
 import { canAccess } from "@/lib/rbac";
 
-// Edge-safe config (no Prisma imports) — used by middleware.
+// Edge-safe config (no Prisma imports), used by middleware.
 export const authConfig = {
   pages: { signIn: "/login" },
   session: { strategy: "jwt" },

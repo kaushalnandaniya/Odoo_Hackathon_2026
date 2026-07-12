@@ -1,7 +1,5 @@
 /**
- * Seed script — demo-critical data. Run: npm run db:seed
- * OWNER: Person 4 refines this (per PLAN.md); Person 1 wrote the base version
- * so the trips engine could be tested.
+ * Seed script, demo-critical data. Run: npm run db:seed
  *
  * Logins (all passwords: password123):
  *   manager@transitops.in   FLEET_MANAGER

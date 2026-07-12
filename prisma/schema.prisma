@@ -1,6 +1,6 @@
-// TransitOps schema — converted from docs/reference-schema.sql (Postgres original).
+// TransitOps schema, converted from docs/reference-schema.sql (Postgres original).
 // DATABASE_URL must be the Supabase POOLED string (port 6543, ?pgbouncer=true).
-// DIRECT_URL must be the Supabase DIRECT string (port 5432) — used for migrations.
+// DIRECT_URL must be the Supabase DIRECT string (port 5432), used for migrations.
 
 generator client {
   provider = "prisma-client-js"

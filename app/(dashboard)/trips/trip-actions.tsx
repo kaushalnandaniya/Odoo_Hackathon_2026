@@ -49,7 +49,7 @@ export function TripActions({
         setError(result.error);
       } else {
         setCompleteOpen(false);
-        toast.success("Trip completed — vehicle and driver are Available again");
+        toast.success("Trip completed, vehicle and driver are Available again");
       }
     });
   }
@@ -63,7 +63,7 @@ export function TripActions({
           size="sm"
           disabled={pending}
           onClick={() =>
-            run(() => dispatchTrip(tripId), "Dispatched — vehicle and driver are On Trip")
+            run(() => dispatchTrip(tripId), "Dispatched, vehicle and driver are On Trip")
           }
         >
           Dispatch
