@@ -12,7 +12,7 @@ export default async function DashboardLayout({
 }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
-  const items = navItemsFor(session.user.role);
+  const items = navItemsFor(session.user.role, session.user.email);
 
   return (
     <div className="flex min-h-screen">

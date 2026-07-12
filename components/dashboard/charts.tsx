@@ -2,9 +2,6 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
-  PieChart, 
-  Pie, 
-  Cell, 
   ResponsiveContainer, 
   Tooltip as RechartsTooltip, 
   Legend,
@@ -16,42 +13,12 @@ import {
 } from "recharts";
 
 interface ChartsProps {
-  statusData: { name: string; value: number; color: string }[];
   costData: { name: string; maintenance: number; fuel: number }[];
 }
 
-export function DashboardCharts({ statusData, costData }: ChartsProps) {
+export function DashboardCharts({ costData }: ChartsProps) {
   return (
-    <div className="grid gap-4 md:grid-cols-2 mt-4">
-      {/* Fleet Status Donut Chart */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Fleet Status Distribution</CardTitle>
-        </CardHeader>
-        <CardContent className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={statusData}
-                cx="50%"
-                cy="50%"
-                innerRadius={60}
-                outerRadius={80}
-                paddingAngle={5}
-                dataKey="value"
-              >
-                {statusData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
-                ))}
-              </Pie>
-              <RechartsTooltip />
-              <Legend verticalAlign="bottom" height={36} />
-            </PieChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
-
-      {/* Cost per Vehicle Bar Chart */}
+    <div className="mt-4">
       <Card>
         <CardHeader>
           <CardTitle>Top Costs per Vehicle</CardTitle>
