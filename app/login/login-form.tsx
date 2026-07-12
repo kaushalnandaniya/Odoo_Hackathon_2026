@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { login } from "@/lib/actions/auth";
 import { motion, Variants } from "framer-motion";
 import { Loader2, Mail, Lock } from "lucide-react";
+import Link from "next/link";
 
 const containerVariants: Variants = {
   hidden: { opacity: 0 },
@@ -87,7 +88,7 @@ export function LoginForm() {
           </div>
           <span className="text-sm font-medium text-foreground/80 group-hover:text-foreground transition-colors">Remember me</span>
         </label>
-        <a href="#" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">Forgot password?</a>
+        <Link href="/forgot-password" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">Forgot password?</Link>
       </motion.div>
       
       <motion.button 

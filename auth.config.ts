@@ -39,7 +39,7 @@ export const authConfig = {
         }
       };
 
-      if (pathname === "/login" || pathname === "/signup") {
+      if (pathname === "/login" || pathname === "/signup" || pathname === "/forgot-password") {
         if (loggedIn) return Response.redirect(new URL(getRoleDashboard(role, email), request.nextUrl));
         return true;
       }

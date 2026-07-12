@@ -150,6 +150,100 @@ export async function resendOTP(formData: FormData) {
   }
 }
 
+export async function requestPasswordReset(_prev: string | undefined, formData: FormData) {
+  const email = formData.get("email") as string;
+  if (!email) return "Email is required.";
+
+  try {
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (!existingUser) {
+      return "No account found with that email address.";
+    }
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    const redisKey = `reset:otp:${email}`;
+    await redis.set(redisKey, JSON.stringify({ email, otp }), { ex: 600 });
+    await sendOTP(email, otp);
+
+    return "REQUIRE_OTP:" + email;
+  } catch (error) {
+    console.error("Password reset request error:", error);
+    return "Server error during password reset request.";
+  }
+}
+
+export async function resetPassword(_prev: string | undefined, formData: FormData) {
+  const email = formData.get("email") as string;
+  const otp = formData.get("otp") as string;
+  const password = formData.get("password") as string;
+
+  if (!email || !otp || !password || password.length < 8) {
+    return "Missing details or password too short.";
+  }
+
+  try {
+    const redisKey = `reset:otp:${email}`;
+    const cachedData = await redis.get(redisKey);
+
+    if (!cachedData) {
+      return "OTP has expired or is invalid. Please request a new one.";
+    }
+
+    const data = typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+
+    if (data.otp !== otp) {
+      return "Incorrect verification code.";
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10);
+    const updatePromise = prisma.user.update({
+      where: { email },
+      data: { passwordHash },
+    });
+
+    const timeoutPromise = new Promise((_, reject) => 
+      setTimeout(() => reject(new Error("Database connection timeout")), 10000)
+    );
+
+    await Promise.race([updatePromise, timeoutPromise]);
+    await redis.del(redisKey);
+
+    return "SUCCESS: Password successfully reset!";
+  } catch (error) {
+    console.error("Password reset error:", error);
+    if (error instanceof Error && error.message === "Database connection timeout") {
+      return "Database timeout. Please try verifying again.";
+    }
+    return "Server error during password reset.";
+  }
+}
+
+export async function resendResetOTP(formData: FormData) {
+  const email = formData.get("email") as string;
+  if (!email) return "Email is required.";
+
+  try {
+    const redisKey = `reset:otp:${email}`;
+    const cachedData = await redis.get(redisKey);
+
+    if (!cachedData) {
+      return "Session expired. Please start the reset process again.";
+    }
+
+    const data = typeof cachedData === "string" ? JSON.parse(cachedData) : cachedData;
+    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+    data.otp = newOtp;
+
+    await redis.set(redisKey, JSON.stringify(data), { ex: 600 });
+    await sendOTP(email, newOtp);
+
+    return "SUCCESS: A new verification code has been sent.";
+  } catch (error) {
+    console.error("Resend Reset OTP Error:", error);
+    return "Server error while resending OTP.";
+  }
+}
+
 export async function logout() {
   await signOut({ redirectTo: "/login" });
 }
