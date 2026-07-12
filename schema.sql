@@ -37,6 +37,7 @@ CREATE TABLE drivers (
   license_category TEXT NOT NULL,
   license_expiry_date DATE NOT NULL,
   contact_number TEXT NOT NULL,
+  assigned_vehicle_id UUID REFERENCES vehicles(id) ON DELETE SET NULL,
   safety_score DECIMAL(5,2) DEFAULT 0 CHECK (safety_score BETWEEN 0 AND 100),
   status driver_status DEFAULT 'AVAILABLE',
   created_at TIMESTAMPTZ DEFAULT now(),
@@ -45,6 +46,7 @@ CREATE TABLE drivers (
 
 CREATE TABLE trips (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  trip_code TEXT UNIQUE NOT NULL,
   source TEXT NOT NULL,
   destination TEXT NOT NULL,
   vehicle_id UUID REFERENCES vehicles(id) NOT NULL,
@@ -113,6 +115,7 @@ CREATE INDEX idx_trips_status ON trips(status);
 CREATE INDEX idx_vehicles_status ON vehicles(status);
 CREATE INDEX idx_drivers_status ON drivers(status);
 CREATE INDEX idx_drivers_license_expiry ON drivers(license_expiry_date);
+CREATE INDEX idx_drivers_assigned_vehicle ON drivers(assigned_vehicle_id);
 CREATE INDEX idx_fuel_logs_vehicle ON fuel_logs(vehicle_id);
 CREATE INDEX idx_maintenance_vehicle ON maintenance_logs(vehicle_id);
 CREATE INDEX idx_expenses_vehicle ON expenses(vehicle_id);
