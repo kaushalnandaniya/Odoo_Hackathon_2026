@@ -51,7 +51,7 @@ export function CreateMaintenanceDialog({ vehicles }: { vehicles: Vehicle[] }) {
               </SelectTrigger>
               <SelectContent>
                 {vehicles.map(v => (
-                  <SelectItem key={v.id} value={v.id}>{v.name} ({v.registrationNumber})</SelectItem>
+                  <SelectItem key={v.id} value={v.id} label={`${v.name} (${v.registrationNumber})`}>{`${v.name} (${v.registrationNumber})`}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

@@ -24,7 +24,7 @@ const expenseSchema = z.object({
 });
 
 export async function createFuelLog(prevState: unknown, formData: FormData) {
-  await requireRole(["FLEET_MANAGER", "FINANCIAL_ANALYST"]);
+  await requireRole(["FLEET_MANAGER", "FINANCIAL_ANALYST", "DRIVER"]);
   try {
     const rawData = Object.fromEntries(formData.entries());
     const validatedData = fuelLogSchema.safeParse(rawData);
@@ -55,7 +55,7 @@ export async function createFuelLog(prevState: unknown, formData: FormData) {
 }
 
 export async function createExpense(prevState: unknown, formData: FormData) {
-  await requireRole(["FLEET_MANAGER", "FINANCIAL_ANALYST"]);
+  await requireRole(["FLEET_MANAGER", "FINANCIAL_ANALYST", "DRIVER"]);
   try {
     const rawData = Object.fromEntries(formData.entries());
     // Type casting string to enum is handled by nativeEnum
