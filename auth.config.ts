@@ -26,7 +26,7 @@ export const authConfig = {
       const loggedIn = !!auth?.user;
       const role = auth?.user?.role;
 
-      if (pathname === "/login") {
+      if (pathname === "/login" || pathname === "/signup") {
         if (loggedIn) return Response.redirect(new URL("/dashboard", request.nextUrl));
         return true;
       }

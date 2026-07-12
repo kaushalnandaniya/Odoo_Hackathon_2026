@@ -2,8 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { navItemsFor } from "@/lib/rbac";
-import { logout } from "@/lib/actions/auth";
-import { Button } from "@/components/ui/button";
+import { LogoutButton } from "@/components/dashboard/logout-button";
 import { Badge } from "@/components/ui/badge";
 
 export default async function DashboardLayout({
@@ -38,11 +37,7 @@ export default async function DashboardLayout({
           <Badge variant="secondary" className="text-[10px]">
             {session.user.role.replace("_", " ")}
           </Badge>
-          <form action={logout}>
-            <Button variant="outline" size="sm" className="w-full">
-              Sign out
-            </Button>
-          </form>
+          <LogoutButton />
         </div>
       </aside>
       <main className="flex-1 overflow-x-auto p-6">{children}</main>
