@@ -95,7 +95,9 @@ export function CreateTripDialog({
             <Label>Vehicle (available only)</Label>
             <Select value={vehicleId} onValueChange={(v) => setVehicleId(v ?? "")} required>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select an available vehicle" />
+                <SelectValue placeholder="Select an available vehicle">
+                  {vehicleId ? vehicles.find(v => v.id === vehicleId)?.name : ""}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {vehicles.length === 0 && (
@@ -116,7 +118,9 @@ export function CreateTripDialog({
             <Label>Driver (available, valid license)</Label>
             <Select value={driverId} onValueChange={(v) => setDriverId(v ?? "")} required>
               <SelectTrigger className="w-full">
-                <SelectValue placeholder="Select an eligible driver" />
+                <SelectValue placeholder="Select an eligible driver">
+                  {driverId ? drivers.find(d => d.id === driverId)?.name : ""}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {drivers.length === 0 && (

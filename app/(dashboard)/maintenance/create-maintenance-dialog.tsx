@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useActionState, useEffect } from "react";
+import { useState, useTransition, useActionState, useEffect } from "react";
 import { createMaintenanceLog } from "@/lib/actions/maintenance";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,17 +15,24 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Vehicle } from "@prisma/client";
+import type { Vehicle } from "@prisma/client";
 
 export function CreateMaintenanceDialog({ vehicles }: { vehicles: Vehicle[] }) {
   const [open, setOpen] = useState(false);
   const [state, formAction, pending] = useActionState(createMaintenanceLog, undefined);
+  const [vehicleId, setVehicleId] = useState("");
 
   useEffect(() => {
     if (state?.success) {
       setOpen(false);
+      setVehicleId("");
     }
   }, [state]);
+
+  function submit(formData: FormData) {
+    formData.set("vehicleId", vehicleId);
+    formAction(formData);
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -39,19 +46,23 @@ export function CreateMaintenanceDialog({ vehicles }: { vehicles: Vehicle[] }) {
             Scheduling maintenance will automatically mark the vehicle as &quot;In Shop&quot;.
           </DialogDescription>
         </DialogHeader>
-        <form action={formAction} className="space-y-4 pt-4">
+        <form action={submit} className="space-y-4 pt-4">
           {state?.error && (
             <div className="text-sm font-medium text-destructive">{state.error}</div>
           )}
           <div className="space-y-2">
             <Label htmlFor="vehicleId">Vehicle</Label>
-            <Select name="vehicleId" required>
+            <Select value={vehicleId} onValueChange={(v) => setVehicleId(v ?? "")} required>
               <SelectTrigger>
-                <SelectValue placeholder="Select a vehicle..." />
+                <SelectValue placeholder="Select a vehicle...">
+                  {vehicleId ? vehicles.find(v => v.id === vehicleId)?.name : ""}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {vehicles.map(v => (
-                  <SelectItem key={v.id} value={v.id} label={`${v.name} (${v.registrationNumber})`}>{`${v.name} (${v.registrationNumber})`}</SelectItem>
+                  <SelectItem key={v.id} value={v.id}>
+                    {v.name} ({v.registrationNumber})
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -79,7 +90,7 @@ export function CreateMaintenanceDialog({ vehicles }: { vehicles: Vehicle[] }) {
               Cancel
             </Button>
             <Button type="submit" disabled={pending}>
-              {pending ? "Saving..." : "Create Log"}
+              {pending ? "Saving..." : "Create"}
             </Button>
           </div>
         </form>

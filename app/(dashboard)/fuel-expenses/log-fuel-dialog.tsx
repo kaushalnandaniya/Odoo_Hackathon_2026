@@ -19,13 +19,20 @@ import { Vehicle } from "@prisma/client";
 
 export function LogFuelDialog({ vehicles }: { vehicles: Vehicle[] }) {
   const [open, setOpen] = useState(false);
+  const [vehicleId, setVehicleId] = useState("");
   const [state, formAction, pending] = useActionState(createFuelLog, undefined);
 
   useEffect(() => {
     if (state?.success) {
       setOpen(false);
+      setVehicleId("");
     }
   }, [state]);
+
+  function submit(formData: FormData) {
+    formData.set("vehicleId", vehicleId);
+    formAction(formData);
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -39,19 +46,21 @@ export function LogFuelDialog({ vehicles }: { vehicles: Vehicle[] }) {
             Record fuel used by a specific vehicle.
           </DialogDescription>
         </DialogHeader>
-        <form action={formAction} className="space-y-4 pt-4">
+        <form action={submit} className="space-y-4 pt-4">
           {state?.error && (
             <div className="text-sm font-medium text-destructive">{state.error}</div>
           )}
           <div className="space-y-2">
-            <Label htmlFor="vehicleId">Vehicle</Label>
-            <Select name="vehicleId" required>
+            <Label>Vehicle</Label>
+            <Select value={vehicleId} onValueChange={(v) => setVehicleId(v ?? "")} required>
               <SelectTrigger>
-                <SelectValue placeholder="Select a vehicle..." />
+                <SelectValue placeholder="Select a vehicle...">
+                  {vehicleId ? vehicles.find(v => v.id === vehicleId)?.name : ""}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent>
                 {vehicles.map(v => (
-                  <SelectItem key={v.id} value={v.id} label={`${v.name} (${v.registrationNumber})`}>{`${v.name} (${v.registrationNumber})`}</SelectItem>
+                  <SelectItem key={v.id} value={v.id}>{v.name} ({v.registrationNumber})</SelectItem>
                 ))}
               </SelectContent>
             </Select>
