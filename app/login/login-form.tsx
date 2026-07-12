@@ -47,7 +47,7 @@ export function LoginForm() {
       <motion.div variants={itemVariants} className="space-y-2 relative group">
         <label htmlFor="email" className="block text-sm font-semibold text-foreground/80 ml-1">Email Address</label>
         <div className="relative">
-          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Mail className="absolute z-10 left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             id="email"
             name="email"
@@ -63,7 +63,7 @@ export function LoginForm() {
       <motion.div variants={itemVariants} className="space-y-2 relative group">
         <label htmlFor="password" className="block text-sm font-semibold text-foreground/80 ml-1">Password</label>
         <div className="relative">
-          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Lock className="absolute z-10 left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
           <input
             id="password"
             name="password"

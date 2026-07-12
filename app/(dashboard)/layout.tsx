@@ -15,13 +15,13 @@ export default async function DashboardLayout({
   const items = navItemsFor(session.user.role, session.user.email);
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="flex w-56 shrink-0 flex-col border-r bg-sidebar">
+    <div className="flex h-screen overflow-hidden">
+      <aside className="flex w-56 shrink-0 flex-col border-r bg-sidebar h-full">
         <div className="border-b p-4">
           <div className="text-lg font-bold">TransitOps</div>
           <div className="text-xs text-muted-foreground">Transport Operations</div>
         </div>
-        <nav className="flex-1 space-y-1 p-2">
+        <nav className="flex-1 space-y-1 p-2 overflow-y-auto">
           {items.map((item) => (
             <Link
               key={item.href}
@@ -32,7 +32,7 @@ export default async function DashboardLayout({
             </Link>
           ))}
         </nav>
-        <div className="space-y-2 border-t p-4">
+        <div className="space-y-2 border-t p-4 mt-auto">
           <div className="truncate text-sm font-medium">{session.user.name}</div>
           <Badge variant="secondary" className="text-[10px]">
             {session.user.role.replace("_", " ")}
@@ -40,7 +40,7 @@ export default async function DashboardLayout({
           <LogoutButton />
         </div>
       </aside>
-      <main className="flex-1 overflow-x-auto p-6">{children}</main>
+      <main className="flex-1 overflow-y-auto p-6 bg-muted/20">{children}</main>
     </div>
   );
 }
