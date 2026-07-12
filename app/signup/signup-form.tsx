@@ -2,10 +2,10 @@
 
 import { useActionState } from "react";
 import { register } from "@/lib/actions/auth";
-import { motion } from "framer-motion";
+import { motion, Variants } from "framer-motion";
 import { Loader2, User, Mail, Lock } from "lucide-react";
 
-const containerVariants = {
+const containerVariants: Variants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
@@ -16,7 +16,7 @@ const containerVariants = {
   },
 };
 
-const itemVariants = {
+const itemVariants: Variants = {
   hidden: { y: 20, opacity: 0 },
   visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 24 } },
 };
