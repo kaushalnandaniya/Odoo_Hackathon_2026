@@ -83,15 +83,6 @@ export default async function DashboardPage() {
   .sort((a, b) => b.total - a.total)
   .slice(0, 5); // Take top 5
 
-<<<<<<< Updated upstream
-=======
-  // Fetch pending users for the admin approval section
-  const pendingUsers = await prisma.user.findMany({
-    where: { role: "PENDING" },
-    select: { id: true, name: true, email: true, createdAt: true },
-    orderBy: { createdAt: "desc" },
-  });
-
   // Fetch recent trips
   const recentTripsData = await prisma.trip.findMany({
     take: 5,
@@ -101,8 +92,6 @@ export default async function DashboardPage() {
       driver: { select: { name: true } },
     }
   });
-
->>>>>>> Stashed changes
   return (
     <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
       <div className="flex items-center justify-between space-y-2">
