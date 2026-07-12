@@ -1,3 +1,4 @@
+export const revalidate = 60;
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/auth";
 import { Badge } from "@/components/ui/badge";

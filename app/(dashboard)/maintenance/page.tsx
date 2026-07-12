@@ -1,3 +1,4 @@
+export const revalidate = 60;
 import { prisma } from "@/lib/prisma";
 import { CreateMaintenanceDialog } from "./create-maintenance-dialog";
 import { MaintenanceActions } from "./maintenance-actions";

@@ -1,3 +1,4 @@
+export const revalidate = 60;
 import { prisma } from "@/lib/prisma";
 import { CreateVehicleDialog } from "./create-vehicle-dialog";
 import { VehicleActions } from "./vehicle-actions";

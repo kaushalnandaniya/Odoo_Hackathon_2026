@@ -1,3 +1,4 @@
+export const revalidate = 60;
 import { prisma } from "@/lib/prisma";
 import { CreateDriverDialog } from "./create-driver-dialog";
 import { DriverActions } from "./driver-actions";

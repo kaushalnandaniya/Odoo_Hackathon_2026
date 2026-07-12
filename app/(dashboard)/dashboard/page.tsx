@@ -1,3 +1,4 @@
+export const revalidate = 60;
 import { auth } from "@/auth";
 import { prisma } from "@/lib/prisma";
 import { KpiCards } from "@/components/dashboard/kpi-cards";

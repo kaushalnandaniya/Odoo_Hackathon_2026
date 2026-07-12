@@ -2,69 +2,122 @@
 
 import { useActionState } from "react";
 import { register } from "@/lib/actions/auth";
+import { motion } from "framer-motion";
+import { Loader2, User, Mail, Lock } from "lucide-react";
+
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+};
+
+const itemVariants = {
+  hidden: { y: 20, opacity: 0 },
+  visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 300, damping: 24 } },
+};
 
 export function SignupForm() {
   const [error, formAction, pending] = useActionState(register, undefined);
 
   return (
-    <form action={formAction} className="space-y-6 mt-4">
+    <motion.form 
+      action={formAction} 
+      className="space-y-6 mt-8"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
       {error && error.startsWith("SUCCESS:") ? (
-        <div className="bg-emerald-100 text-emerald-700 p-4 rounded-xl text-[0.95rem] font-bold border border-emerald-500/30 shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, y: -10, scale: 0.95 }} 
+          animate={{ opacity: 1, y: 0, scale: 1 }} 
+          className="bg-emerald-500/10 text-emerald-600 p-4 rounded-xl text-[0.95rem] font-medium border border-emerald-500/20 shadow-sm flex items-center gap-3"
+        >
+          <div className="w-1 h-8 bg-emerald-500 rounded-full" />
           {error.replace("SUCCESS: ", "")}
-        </div>
+        </motion.div>
       ) : error ? (
-        <div className="bg-red-100 text-[#ef4444] p-4 rounded-xl text-[0.95rem] font-bold border border-[#ef4444]/30 shadow-sm">
+        <motion.div 
+          initial={{ opacity: 0, y: -10, scale: 0.95 }} 
+          animate={{ opacity: 1, y: 0, scale: 1 }} 
+          className="bg-destructive/10 text-destructive p-4 rounded-xl text-[0.95rem] font-medium border border-destructive/20 shadow-sm flex items-center gap-3"
+        >
+          <div className="w-1 h-8 bg-destructive rounded-full" />
           {error}
-        </div>
+        </motion.div>
       ) : null}
       
-      <div className="space-y-2">
-        <label htmlFor="name" className="block text-[0.95rem] font-bold text-[#111827]">Full Name</label>
-        <input
-          id="name"
-          name="name"
-          type="text"
-          placeholder="Jane Doe"
-          autoComplete="name"
-          required
-          className="w-full px-4 py-3.5 rounded-xl border-2 border-transparent bg-[#fef9c3] text-[#111827] placeholder:text-slate-500 font-medium focus:outline-none focus:border-[#ef4444] focus:ring-4 focus:ring-[#ef4444]/20 transition-all shadow-sm"
-        />
-      </div>
+      <motion.div variants={itemVariants} className="space-y-2 relative group">
+        <label htmlFor="name" className="block text-sm font-semibold text-foreground/80 ml-1">Full Name</label>
+        <div className="relative">
+          <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <input
+            id="name"
+            name="name"
+            type="text"
+            placeholder="John Doe"
+            autoComplete="name"
+            required
+            className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm text-foreground placeholder:text-muted-foreground font-medium focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm"
+          />
+        </div>
+      </motion.div>
 
-      <div className="space-y-2">
-        <label htmlFor="email" className="block text-[0.95rem] font-bold text-[#111827]">Email</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          placeholder="manager@transitops.in"
-          autoComplete="email"
-          required
-          className="w-full px-4 py-3.5 rounded-xl border-2 border-transparent bg-[#fef9c3] text-[#111827] placeholder:text-slate-500 font-medium focus:outline-none focus:border-[#ef4444] focus:ring-4 focus:ring-[#ef4444]/20 transition-all shadow-sm"
-        />
-      </div>
+      <motion.div variants={itemVariants} className="space-y-2 relative group">
+        <label htmlFor="email" className="block text-sm font-semibold text-foreground/80 ml-1">Email Address</label>
+        <div className="relative">
+          <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="manager@transitops.in"
+            autoComplete="email"
+            required
+            className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm text-foreground placeholder:text-muted-foreground font-medium focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm"
+          />
+        </div>
+      </motion.div>
       
-      <div className="space-y-2">
-        <label htmlFor="password" className="block text-[0.95rem] font-bold text-[#111827]">Password</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          placeholder="Create a strong password"
-          autoComplete="new-password"
-          required
-          minLength={8}
-          className="w-full px-4 py-3.5 rounded-xl border-2 border-transparent bg-[#fef9c3] text-[#111827] placeholder:text-slate-500 font-medium focus:outline-none focus:border-[#ef4444] focus:ring-4 focus:ring-[#ef4444]/20 transition-all shadow-sm"
-        />
-      </div>
+      <motion.div variants={itemVariants} className="space-y-2 relative group">
+        <label htmlFor="password" className="block text-sm font-semibold text-foreground/80 ml-1">Password</label>
+        <div className="relative">
+          <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="••••••••••"
+            autoComplete="new-password"
+            required
+            minLength={8}
+            className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-border/50 bg-background/50 backdrop-blur-sm text-foreground placeholder:text-muted-foreground font-medium focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 transition-all shadow-sm"
+          />
+        </div>
+      </motion.div>
       
-      <button 
+      <motion.button 
+        variants={itemVariants}
+        whileHover={{ scale: 1.01, translateY: -2 }}
+        whileTap={{ scale: 0.98 }}
         type="submit" 
         disabled={pending}
-        className="w-full bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold py-4 rounded-xl transition-all disabled:opacity-70 mt-8 text-[1rem] tracking-wide shadow-[0_4px_14px_0_rgba(239,68,68,0.39)] hover:shadow-[0_6px_20px_rgba(239,68,68,0.23)] hover:-translate-y-[1px]"
+        className="relative overflow-hidden w-full bg-primary hover:bg-primary/90 text-primary-foreground font-bold py-4 rounded-2xl transition-all disabled:opacity-70 mt-8 text-[1rem] tracking-wide shadow-lg shadow-primary/25 hover:shadow-xl hover:shadow-primary/30 flex items-center justify-center gap-2"
       >
-        {pending ? "Creating account..." : "Sign Up"}
-      </button>
-    </form>
+        {pending ? (
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" />
+            Creating account...
+          </>
+        ) : (
+          "Sign Up"
+        )}
+      </motion.button>
+    </motion.form>
   );
 }

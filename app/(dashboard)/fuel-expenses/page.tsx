@@ -1,3 +1,4 @@
+export const revalidate = 60;
 import { prisma } from "@/lib/prisma";
 import { LogFuelDialog } from "./log-fuel-dialog";
 import { LogExpenseDialog } from "./log-expense-dialog";
